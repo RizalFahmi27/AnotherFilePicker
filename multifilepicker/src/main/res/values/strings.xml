@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">MultiFilePicker</string>
+
+    <string name="action_search">Search</string>
+    <string name="action_sort">Sort</string>
+
+    <string name="text_search_query_hint">Search ...</string>
+    <string name="text_browser_more">Browse more ...</string>
+    <string name="text_permission_not_granted">This application needs permission to operate, please allow to continue</string>
+
+    <string name="text_sort_by_name">Sort by name</string>
+    <string name="text_sort_by_date">Sort by date</string>
+    <string name="text_sort_by_type">Sort by type</string>
+    <string name="text_sort_by_size">Sort by size</string>
+
+    <string name="text_loading">Loading ...</string>
+    <string name="text_open">Open</string>
+    <string name="text_select">Select</string>
+</resources>

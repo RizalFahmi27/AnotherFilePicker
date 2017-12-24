@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rzilyn.github.multifilepicker">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application>
+        <activity android:name=".BaseActivity" />
+        <activity
+            android:name=".FilePickerSimpleActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".FilePickerTabbedActivity"></activity>
+    </application>
+
+</manifest>
