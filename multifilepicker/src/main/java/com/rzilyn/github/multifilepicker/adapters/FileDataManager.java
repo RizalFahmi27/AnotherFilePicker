@@ -1,8 +1,6 @@
-package com.rzilyn.github.multifilepicker.adapter;
+package com.rzilyn.github.multifilepicker.adapters;
 
 import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.widget.BaseAdapter;
 
 import com.rzilyn.github.multifilepicker.model.BaseFile;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
@@ -11,7 +9,6 @@ import com.rzilyn.github.multifilepicker.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +33,10 @@ public class FileDataManager <T> implements FileContract<T> {
         this.tempFileList = new ArrayList<>();
     }
 
-    @Override
     public void addAdapter(BaseFileAdapter adapter) {
         this.adapter = adapter;
     }
 
-    @Override
     public void replaceData(List<T> fileList) {
         this.originalFileList = fileList;
         this.tempFileList = fileList;
@@ -68,6 +63,7 @@ public class FileDataManager <T> implements FileContract<T> {
         adapter.notifyDataChange();
     }
 
+    @Override
     public BaseFileAdapter getAdapter(){
         return adapter;
     }
@@ -91,20 +87,21 @@ public class FileDataManager <T> implements FileContract<T> {
         if(adapter instanceof SimpleFileAdapter) {
             List<T> result;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                result = (List<T>) Util.filter((List<GeneralFile>)originalFileList, new Predicate<GeneralFile>() {
+                result = Util.filter(originalFileList, new Predicate<T>() {
                     @Override
-                    public boolean test(GeneralFile file) {
+                    public boolean test(T t) {
+                        GeneralFile file = (GeneralFile) t;
                         return phrase.equals("") || file.getFilename().toLowerCase().contains(phrase.toLowerCase());
                     }
                 });
             } else
-                result = (List<T>) Util.filter((List<GeneralFile>)originalFileList, new com.android.internal.util.Predicate<GeneralFile>() {
+                result = (List<T>) Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
                     @Override
-                    public boolean apply(GeneralFile file) {
+                    public boolean apply(T t) {
+                        GeneralFile file = (GeneralFile) t;
                         return phrase.equals("") || file.getFilename().toLowerCase().contains(phrase.toLowerCase());
                     }
                 });
-
             replaceTempData(result);
             notifyDataChange();
         }
@@ -118,37 +115,31 @@ public class FileDataManager <T> implements FileContract<T> {
         this.hasFinishedloading = flag;
     }
 
-    @Override
     public void replaceTempData(List<T> fileList) {
         this.tempFileList = fileList;
         replaceAdapterData(fileList);
     }
 
-    @Override
     public void addData(T file) {
         originalFileList.add(file);
         tempFileList.add(file);
         addAdapterData(file);
     }
 
-    @Override
     public void addTempData(T file) {
         tempFileList.add(file);
         notifyDataInsert();
     }
 
-    @Override
     public void addSelectedFile(String key, T file) {
         selectedFile.put(key,file);
         Log.d("DataManager","Put ? "+selectedFile.containsKey(key));
     }
 
-    @Override
     public void removeSelectedFile(String key) {
         selectedFile.remove(key);
     }
 
-    @Override
     public Map<String, T> getSelectedFile() {
         return selectedFile;
     }

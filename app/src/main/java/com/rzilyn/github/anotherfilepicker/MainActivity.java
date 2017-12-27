@@ -40,12 +40,12 @@ public class MainActivity extends AppCompatActivity {
                         .setOrientation(Orientation.PORTRAIT)
                         .enableDeepScan(false)
                         .setFileLimit(10)
-                        .setSinglePick(true)
+//                        .setSinglePick(true)
                         .setHint("Pick a file")
-                        .setFileUpdateMethod(FileUpdateMethod.BUFFER)
-                        .setColorScheme(ContextCompat.getColor(MainActivity.this,R.color.colorPrimary),
-                                ContextCompat.getColor(MainActivity.this,R.color.colorAccent),
-                                ContextCompat.getColor(MainActivity.this,R.color.colorOrange))
+                        .setFileUpdateMethod(FileUpdateMethod.STREAM)
+                        .setColorScheme(ContextCompat.getColor(MainActivity.this,R.color.colorBlue),
+                                ContextCompat.getColor(MainActivity.this,R.color.colorBrown),
+                                ContextCompat.getColor(MainActivity.this,R.color.colorGreen))
                         .build();
 
                 MultiFilePicker.pickFile(MainActivity.this,options,10);

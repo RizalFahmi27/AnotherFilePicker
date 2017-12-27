@@ -13,7 +13,6 @@ import com.rzilyn.github.multifilepicker.utils.Orientation;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-
     protected void onCreate(@NonNull Bundle savedInstanceState, @LayoutRes int layout) {
         super.onCreate(savedInstanceState);
         setContentView(layout);

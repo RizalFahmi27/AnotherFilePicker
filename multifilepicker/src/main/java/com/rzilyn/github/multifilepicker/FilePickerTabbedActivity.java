@@ -18,9 +18,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,14 +37,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rzilyn.github.multifilepicker.adapter.FileDataManager;
-import com.rzilyn.github.multifilepicker.adapter.SimpleFileAdapter;
+import com.rzilyn.github.multifilepicker.adapters.FileDataManager;
+import com.rzilyn.github.multifilepicker.adapters.SimpleFileAdapter;
 import com.rzilyn.github.multifilepicker.loader.ScanResultCallback;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
-import com.rzilyn.github.multifilepicker.utils.BaseAdapterListener;
+import com.rzilyn.github.multifilepicker.listeners.BaseAdapterListener;
 import com.rzilyn.github.multifilepicker.utils.Constant;
 import com.rzilyn.github.multifilepicker.utils.FileLoaderHelper;
 import com.rzilyn.github.multifilepicker.utils.FileUpdateMethod;
@@ -63,10 +63,13 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
     private Toolbar mToolbar;
     private SearchView mSearchView;
     private MenuItem mItemSearch;
-    private RecyclerView mRecyclerView;
     private View mContainerLoading;
+    private View mContainerViewpager;
     private FloatingActionButton mFAB;
     private CoordinatorLayout coordinatorLayout;
+
+    private TableLayout mTablayout;
+    private ViewPager mViewPager;
 
     private FilePickerOptions options;
     private int[] colorScheme;
@@ -95,8 +98,7 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         options = getIntent().getParcelableExtra(Constant.EXTRA_OPTIONS);
         this.colorScheme = options.getColorScheme();
         Log.d(TAG,"Is enabled : " +options.isEnableDeepScan());
-        this.mFileDataManager.addAdapter(new SimpleFileAdapter(new ArrayList<GeneralFile>(0),this,colorScheme,
-                !options.isSinglePick()));
+
     }
 
     @Override
@@ -112,7 +114,11 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         getSupportActionBar().setTitle(options.getHint());
 
         mContainerLoading = findViewById(R.id.container_loadingView);
+        mContainerViewpager = findViewById(R.id.container_viewpager);
         coordinatorLayout = findViewById(R.id.coordinator);
+        mViewPager = findViewById(R.id.viewPager);
+        mTablayout = findViewById(R.id.tab_main);
+
         mFAB = findViewById(R.id.fab_done);
         mFAB.setOnClickListener(this);
 
@@ -154,12 +160,6 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         }
 
         mSnackbar = Snackbar.make(coordinatorLayout,getString(R.string.text_loading),Snackbar.LENGTH_INDEFINITE);
-
-        mRecyclerView = findViewById(R.id.recyclerview_file);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mFileDataManager.getAdapter());
-        registerForContextMenu(mRecyclerView);
-
         initPermission();
     }
 
@@ -198,17 +198,17 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         if(isLoading) {
             if (options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
                 mContainerLoading.setVisibility(View.VISIBLE);
-                mRecyclerView.setVisibility(View.GONE);
+                mContainerViewpager.setVisibility(View.GONE);
             } else if (options.getUpdateMethod() == FileUpdateMethod.STREAM) {
                 mContainerLoading.setVisibility(View.GONE);
-                mRecyclerView.setVisibility(View.VISIBLE);
+                mContainerViewpager.setVisibility(View.VISIBLE);
                 mSnackbar.show();
             }
         }
         else {
             if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
                 mContainerLoading.setVisibility(View.GONE);
-                mRecyclerView.setVisibility(View.VISIBLE);
+                mContainerViewpager.setVisibility(View.VISIBLE);
             }
             else if(options.getUpdateMethod() == FileUpdateMethod.STREAM){
                 mSnackbar.dismiss();
@@ -222,8 +222,8 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
             @Override
             public void onFileScanFinished(List<GeneralFile> fileList) {
                 if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-                    mFileDataManager.replaceData(fileList);
-                    mFileDataManager.notifyDataChange();
+//                    mFileDataManager.replaceData(fileList);
+//                    mFileDataManager.notifyDataChange();
                 }
                 mFileDataManager.setHasfinishedLoading(true);
                 switchLoadingState(false);
@@ -231,12 +231,12 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
 
             @Override
             public void onFileScanUpdate(GeneralFile file) {
-                mFileDataManager.addData(file);
+//                mFileDataManager.addData(file);
                 // Filter file when search view is active
                 // If the commencing file fulfill the query pattern, then add it to adapter
-                if(mSearchView.getVisibility() == View.VISIBLE)
-                    mFileDataManager.filterFile(mSearchView.getQuery().toString());
-                else mFileDataManager.notifyDataInsert();
+//                if(mSearchView.getVisibility() == View.VISIBLE)
+//                    mFileDataManager.filterFile(mSearchView.getQuery().toString());
+//                else mFileDataManager.notifyDataInsert();
 //                switchLoadingState(false);
             }
         });
@@ -471,4 +471,6 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         setResult(RESULT_OK,intent);
         finish();
     }
+
+
 }

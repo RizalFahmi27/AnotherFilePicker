@@ -16,4 +16,6 @@
     <string name="text_loading">Loading ...</string>
     <string name="text_open">Open</string>
     <string name="text_select">Select</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

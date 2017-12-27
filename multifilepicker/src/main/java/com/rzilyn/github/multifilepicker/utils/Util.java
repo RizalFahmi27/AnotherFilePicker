@@ -24,6 +24,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -199,23 +200,23 @@ public class Util {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    public static <T> Collection<T> filter(Collection<T> origin, final Predicate<T> predicate){
+    public static <T> List<T> filter(List<T> origin, final Predicate<T> predicate){
         Collection<T> result = new ArrayList<>();
         for(T t : origin){
             if(predicate.test(t))
                 result.add(t);
         }
-        return result;
+        return new ArrayList<>(result);
     }
 
-    public static <T> Collection<T> filter(Collection<T> origin, final com.android.internal.util.Predicate<T> predicate){
+    public static <T> List<T> filter(List<T> origin, final com.android.internal.util.Predicate<T> predicate){
         Collection<T> result = new ArrayList<>();
         for(T t : origin){
             Log.d("Util","result size : "+origin.size());
             if(predicate.apply(t))
                 result.add(t);
         }
-        return result;
+        return new ArrayList<>(result);
     }
 
 }

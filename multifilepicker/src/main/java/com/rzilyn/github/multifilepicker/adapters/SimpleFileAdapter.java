@@ -1,11 +1,10 @@
-package com.rzilyn.github.multifilepicker.adapter;
+package com.rzilyn.github.multifilepicker.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import android.widget.TextView;
 
 import com.rzilyn.github.multifilepicker.R;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
-import com.rzilyn.github.multifilepicker.utils.BaseAdapterListener;
+import com.rzilyn.github.multifilepicker.listeners.BaseAdapterListener;
 import com.rzilyn.github.multifilepicker.utils.Util;
 
 import net.igenius.customcheckbox.CustomCheckBox;
@@ -31,15 +30,14 @@ public class SimpleFileAdapter extends BaseFileAdapter{
     private BaseAdapterListener<GeneralFile> mAdapterListener;
     private boolean enableCheckBox;
 
-    public SimpleFileAdapter(List<GeneralFile> fileList, Context context, int[] colorScheme, boolean enableCheckBox){
+    public SimpleFileAdapter(List<GeneralFile> fileList, Context context, @NonNull BaseAdapterListener adapterListener,
+                             int[] colorScheme, boolean enableCheckBox){
         super(fileList,context,colorScheme);
         this.fileList = fileList;
         this.enableCheckBox = enableCheckBox;
         if(!(mContext instanceof View.OnCreateContextMenuListener))
             throw new IllegalStateException("Context must implement OnCreateContextMenuListener");
-        if(!(mContext instanceof BaseAdapterListener))
-            throw new IllegalStateException("Context must implement AdapterListener");
-        else mAdapterListener = (BaseAdapterListener<GeneralFile>) mContext;
+        this.mAdapterListener = adapterListener;
     }
 
     public GeneralFile getCurrentItem() {
