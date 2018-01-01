@@ -46,6 +46,7 @@ public class FileDataManager <T> implements FileContract<T> {
     private void replaceAdapterData(List<T> fileList){
         if(adapter instanceof SimpleFileAdapter)
             adapter.replaceData((List<GeneralFile>) fileList);
+        Log.d("SearchQuery","Text : "+fileList.size());
         notifyDataChange();
     }
 
@@ -60,7 +61,11 @@ public class FileDataManager <T> implements FileContract<T> {
     }
 
     public void notifyDataChange(){
-        adapter.notifyDataChange();
+        adapter.notifyDataSetChanged();
+    }
+
+    public void notifyItemRangeChanged(){
+
     }
 
     @Override
@@ -68,22 +73,23 @@ public class FileDataManager <T> implements FileContract<T> {
         return adapter;
     }
 
+
     public void recoverOriginalData(){
         tempFileList.clear();
         tempFileList.addAll(originalFileList);
         replaceAdapterData(tempFileList);
     }
 
-    public void sortFile(Sort.Type type, Sort.Order order){
+    public void sortFile(Sort.Type type, Sort.Order order, boolean replaceData){
         if(adapter instanceof SimpleFileAdapter) {
             Collections.sort((List<GeneralFile>) tempFileList, new BaseFile.FileComparator(type,order));
             Collections.sort((List<GeneralFile>) originalFileList, new BaseFile.FileComparator(type,order));
-            replaceAdapterData(tempFileList);
-            notifyDataChange();
+            if(replaceData)
+               replaceAdapterData(tempFileList);
         }
     }
 
-    public void filterFile(final String phrase){
+    public void filterFile(final String phrase, boolean replaceData){
         if(adapter instanceof SimpleFileAdapter) {
             List<T> result;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -95,15 +101,15 @@ public class FileDataManager <T> implements FileContract<T> {
                     }
                 });
             } else
-                result = (List<T>) Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
+                result = Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
                     @Override
                     public boolean apply(T t) {
                         GeneralFile file = (GeneralFile) t;
                         return phrase.equals("") || file.getFilename().toLowerCase().contains(phrase.toLowerCase());
                     }
                 });
-            replaceTempData(result);
-            notifyDataChange();
+            if(replaceData)
+                replaceTempData(result);
         }
     }
 
@@ -116,7 +122,7 @@ public class FileDataManager <T> implements FileContract<T> {
     }
 
     public void replaceTempData(List<T> fileList) {
-        this.tempFileList = fileList;
+        tempFileList = fileList;
         replaceAdapterData(fileList);
     }
 
@@ -124,6 +130,18 @@ public class FileDataManager <T> implements FileContract<T> {
         originalFileList.add(file);
         tempFileList.add(file);
         addAdapterData(file);
+    }
+
+    public void replaceAndSetData(List<T> fileList, String projection, Sort.Type sortType, Sort.Order sortOrder, String query){
+        this.originalFileList = fileList;
+        this.tempFileList = fileList;
+        setData(projection,sortType,sortOrder,query);
+    }
+
+    public void addAndSetData(T file, String projection, Sort.Type sortType, Sort.Order sortOrder, String query){
+        originalFileList.add(file);
+        tempFileList.add(file);
+        setData(projection,sortType,sortOrder,query);
     }
 
     public void addTempData(T file) {
@@ -151,6 +169,22 @@ public class FileDataManager <T> implements FileContract<T> {
     @Override
     public List<T> getData() {
         return tempFileList;
+    }
+
+    @Override
+    public void setData(String projection, Sort.Type sortType, Sort.Order sortOrder, String searchQuery) {
+//        recoverOriginalData();
+        List<T> dataToBeSet = new ArrayList<>();
+        for(T t : tempFileList){
+            if(adapter instanceof SimpleFileAdapter){
+                GeneralFile file = (GeneralFile) t;
+                if(file.getFileType().equals(projection))
+                    dataToBeSet.add(t);
+            }
+        }
+        sortFile(sortType,sortOrder,false);
+        filterFile(searchQuery,false);
+        replaceAdapterData(dataToBeSet);
     }
 
 }
