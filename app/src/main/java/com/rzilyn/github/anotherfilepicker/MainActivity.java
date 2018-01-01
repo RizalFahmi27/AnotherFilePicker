@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.rzilyn.github.multifilepicker.FilePickerOptions;
 import com.rzilyn.github.multifilepicker.MultiFilePicker;
+import com.rzilyn.github.multifilepicker.utils.FileTypePreset;
 import com.rzilyn.github.multifilepicker.utils.FileUpdateMethod;
 import com.rzilyn.github.multifilepicker.utils.Orientation;
 
@@ -42,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
                         .setFileLimit(10)
 //                        .setSinglePick(true)
                         .setHint("Pick a file")
+                        .enableTab(true)
+                        .addFileFilter(FileTypePreset.DOCUMENTS)
                         .setFileUpdateMethod(FileUpdateMethod.STREAM)
+//                        .setFileUpdateMethod(FileUpdateMethod.BUFFER)
                         .setColorScheme(ContextCompat.getColor(MainActivity.this,R.color.colorBlue),
                                 ContextCompat.getColor(MainActivity.this,R.color.colorBrown),
                                 ContextCompat.getColor(MainActivity.this,R.color.colorGreen))

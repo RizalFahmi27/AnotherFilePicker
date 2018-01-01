@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,9 +25,9 @@ import android.widget.Toast;
 
 import com.rzilyn.github.multifilepicker.BaseFragment;
 import com.rzilyn.github.multifilepicker.FilePickerOptions;
-import com.rzilyn.github.multifilepicker.FilePickerSimpleActivity;
 import com.rzilyn.github.multifilepicker.MultiFilePicker;
 import com.rzilyn.github.multifilepicker.R;
+import com.rzilyn.github.multifilepicker.adapters.FileContract;
 import com.rzilyn.github.multifilepicker.adapters.SimpleFileAdapter;
 import com.rzilyn.github.multifilepicker.listeners.ActivityInteractionListener;
 import com.rzilyn.github.multifilepicker.listeners.BaseAdapterListener;
@@ -49,15 +51,13 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  */
 public class FilePickerFragment extends BaseFragment implements BaseAdapterListener<GeneralFile>, View.OnClickListener,
-        ActivityInteractionListener.ActivityToFragment {
+        ActivityInteractionListener.ActivityToFragment, FragmentInteractionListener {
 
     private FloatingActionButton mFAB;
     private View mContainerLoading;
     private FrameLayout mContainerFragment;
     private ProgressBar mProgressBar;
     private Snackbar mSnackbar;
-
-    private FragmentInteractionListener mChildFragmentListener;
 
     public FilePickerFragment() {
         // Required empty public constructor
@@ -90,13 +90,14 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
         // Inflate the layout for this fragment
         View view = super.onCreateView(inflater,container,savedInstanceState, R.layout.fragment_file_picker);
 
-        FilePickerSimpleFragment fragment = FilePickerSimpleFragment.newInstance();
-        mChildFragmentListener = fragment;
+        Fragment fragment = null;
+
+        // TODO prevent from illegalstate casting
+        if(options.isTabEnabled()){
+            fragment = FilePickerTabbedFragment.newInstance();
+        }
+        else fragment = FilePickerSimpleFragment.newInstance();
         ActivityUtil.addFragment(getChildFragmentManager(),fragment,R.id.container_childFragment);
-
-        mChildFragmentListener.setFileContract(mFileDataManager);
-        mChildFragmentListener.setFileOptions(options);
-
         return view;
     }
 
@@ -177,8 +178,10 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             @Override
             public void onFileScanFinished(List<GeneralFile> fileList) {
                 if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-                    mFileDataManager.replaceData(fileList);
-                    mFileDataManager.notifyDataChange();
+                    if(options.isTabEnabled())
+                    mFileDataManager.replaceAndSetData(fileList,options.getFileFilters().get(0),mFragmentListener.getSortType(),
+                            mFragmentListener.getSortOrder(),mFragmentListener.getSearchQuery());
+                    else mFileDataManager.replaceData(fileList);
                 }
                 mFileDataManager.setHasfinishedLoading(true);
                 switchLoadingState(false);
@@ -188,11 +191,10 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             public void onFileScanUpdate(GeneralFile file) {
                 mFileDataManager.addData(file);
                 // Filter file when search view is active
-                // If the commencing file fulfill the query pattern, then add it to adapter
+                // If the emitting file fulfill the query pattern, then add it to adapter
                 if(mFragmentListener.isSearchVisible())
-                    mFileDataManager.filterFile(mFragmentListener.getSearchQuery());
-                else mFileDataManager.notifyDataInsert();
-//                switchLoadingState(false);
+                    mFileDataManager.filterFile(mFragmentListener.getSearchQuery(),true);
+                else mFileDataManager.notifyDataChange();
             }
         });
     }
@@ -251,17 +253,28 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
 
     @Override
     public void filter(String query) {
-        mFileDataManager.filterFile(query);
-        mFileDataManager.notifyDataChange();
+        if(mFileDataManager.hasFinishedLoading()) {
+            mFileDataManager.filterFile(query,true);
+        }
     }
 
     @Override
     public void sort(Sort.Type type, Sort.Order order) {
-        mFileDataManager.sortFile(type,order);
+        mFileDataManager.sortFile(type,order,true);
     }
 
     @Override
     public void recoverOriginalData() {
         mFileDataManager.recoverOriginalData();
+    }
+
+    @Override
+    public FileContract<GeneralFile> getFileContract() {
+        return mFileDataManager;
+    }
+
+    @Override
+    public FilePickerOptions getFileOptions() {
+        return options;
     }
 }

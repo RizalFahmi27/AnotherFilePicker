@@ -11,6 +11,6 @@ import com.rzilyn.github.multifilepicker.model.GeneralFile;
  */
 
 public interface FragmentInteractionListener {
-    void setFileContract(@NonNull FileContract<GeneralFile> fileContract);
-    void setFileOptions(@NonNull FilePickerOptions fileOptions);
+    FileContract<GeneralFile> getFileContract();
+    FilePickerOptions getFileOptions();
 }

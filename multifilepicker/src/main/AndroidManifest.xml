@@ -7,9 +7,8 @@
     <application>
         <activity android:name=".BaseActivity" />
         <activity
-            android:name=".FilePickerSimpleActivity"
+            android:name=".FilePickerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".FilePickerTabbedActivity"></activity>
     </application>
 
 </manifest>

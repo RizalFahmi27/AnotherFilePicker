@@ -18,6 +18,8 @@ import com.rzilyn.github.multifilepicker.utils.Util;
 
 import net.igenius.customcheckbox.CustomCheckBox;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class SimpleFileAdapter extends BaseFileAdapter{
     private GeneralFile mCurrentItem;
     private BaseAdapterListener<GeneralFile> mAdapterListener;
     private boolean enableCheckBox;
+    private String projection;
 
     public SimpleFileAdapter(List<GeneralFile> fileList, Context context, @NonNull BaseAdapterListener adapterListener,
                              int[] colorScheme, boolean enableCheckBox){
@@ -47,6 +50,35 @@ public class SimpleFileAdapter extends BaseFileAdapter{
     public void setCurrentItem(GeneralFile file) {
         this.mCurrentItem = file;
     }
+
+    public void setProjection(String projection){
+        this.projection = projection;
+    }
+
+//    @Override
+//    protected void addData(GeneralFile file) {
+//        if(projection != null && !projection.equals(file.getFileType())){
+//            // Do something
+//        }
+//        else super.addData(file);
+//    }
+
+//    public void notifyTabSelected(){
+//        actualPosition.clear();
+//        for(int i=0,j=0;i<fileList.size();i++){
+//            GeneralFile file = fileList.get(i);
+//            if(projection != null && projection.equals(file.getFileType())){
+//                actualPosition.put(j,i);
+//                j++;
+//                Log.d("Adapter","Item loop : "+projection);
+//            }
+//        }
+//        notifyDataSetChanged();
+//    }
+
+//    private int getActualPosition(int position){
+//        return actualPosition.get(position);
+//    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -115,10 +147,17 @@ public class SimpleFileAdapter extends BaseFileAdapter{
         }
     }
 
+
+
     @Override
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
         holder.itemView.setOnLongClickListener(null);
         super.onViewRecycled(holder);
+    }
+
+    @Override
+    public int getItemCount() {
+        return fileList.size();
     }
 
     @Override

@@ -34,12 +34,14 @@ public class FilePickerOptions implements Parcelable {
 
     private List<String> fileFilters = new ArrayList<>();
 
+    private int enableTab;
+
     public FilePickerOptions(){
 
     }
 
     private FilePickerOptions(Orientation orientation, int singlePick, int fileLimit, FileUpdateMethod updateMethod,
-                              int enableDeepScan, int[] colorScheme, String hint, List<String> fileFilters) {
+                              int enableDeepScan, int[] colorScheme, String hint, List<String> fileFilters, int enableTab) {
         this.orientation = orientation;
         this.singlePick = singlePick;
         this.fileLimit = fileLimit;
@@ -48,6 +50,7 @@ public class FilePickerOptions implements Parcelable {
         this.colorScheme = colorScheme;
         this.hint = hint;
         this.fileFilters = fileFilters;
+        this.enableTab = enableTab;
     }
 
     public boolean isSinglePick() {
@@ -80,7 +83,10 @@ public class FilePickerOptions implements Parcelable {
 
     public Orientation getOrientation() {
         return orientation;
+    }
 
+    public boolean isTabEnabled(){
+        return enableTab == 1;
     }
 
     protected FilePickerOptions(Parcel in) {
@@ -113,6 +119,7 @@ public class FilePickerOptions implements Parcelable {
         this.colorScheme = in.createIntArray();
         this.hint = in.readString();
         in.readStringList(fileFilters);
+        this.enableTab = in.readInt();
     }
 
     public static final Creator<FilePickerOptions> CREATOR = new Creator<FilePickerOptions>() {
@@ -142,6 +149,7 @@ public class FilePickerOptions implements Parcelable {
         parcel.writeIntArray(colorScheme);
         parcel.writeString(hint);
         parcel.writeStringList(fileFilters);
+        parcel.writeInt(enableTab);
     }
 
     public static class Build {
@@ -153,6 +161,7 @@ public class FilePickerOptions implements Parcelable {
         private int[] colorScheme = new int[0];
         private String hint = "Select File";
         private List<String> fileFilters = new ArrayList<>();
+        private boolean enableTab = false;
 
         /**
          * Set preferred orientation for library to use.
@@ -243,9 +252,17 @@ public class FilePickerOptions implements Parcelable {
             return this;
         }
 
+        public Build enableTab(boolean enable){
+            this.enableTab = enable;
+            return this;
+        }
+
         public FilePickerOptions build(){
             int isSinglePick = (this.singlePick || fileLimit < 2) ? 1 : 0;
             int deepScan = enableDeepScan ? 1 : 0;
+            int tab = enableTab ? 1 : 0;
+            if(enableTab)
+                updateMethod = FileUpdateMethod.BUFFER;
             return new FilePickerOptions(orientation,
                     isSinglePick,
                     fileLimit,
@@ -253,7 +270,8 @@ public class FilePickerOptions implements Parcelable {
                     deepScan,
                     colorScheme,
                     hint,
-                    fileFilters);
+                    fileFilters,
+                    tab);
         }
 
     }

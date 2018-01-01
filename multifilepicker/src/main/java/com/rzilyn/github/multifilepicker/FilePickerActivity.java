@@ -2,23 +2,17 @@ package com.rzilyn.github.multifilepicker;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -31,57 +25,38 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.ProgressBar;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rzilyn.github.multifilepicker.adapters.FileDataManager;
-import com.rzilyn.github.multifilepicker.adapters.SimpleFileAdapter;
-import com.rzilyn.github.multifilepicker.loader.ScanResultCallback;
-import com.rzilyn.github.multifilepicker.model.GeneralFile;
-import com.rzilyn.github.multifilepicker.listeners.BaseAdapterListener;
+import com.rzilyn.github.multifilepicker.fragments.FilePickerFragment;
+import com.rzilyn.github.multifilepicker.listeners.ActivityInteractionListener;
+import com.rzilyn.github.multifilepicker.utils.ActivityUtil;
 import com.rzilyn.github.multifilepicker.utils.Constant;
-import com.rzilyn.github.multifilepicker.utils.FileLoaderHelper;
-import com.rzilyn.github.multifilepicker.utils.FileUpdateMethod;
 import com.rzilyn.github.multifilepicker.utils.Sort;
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 
-public class FilePickerTabbedActivity extends BaseActivity implements View.OnClickListener, BaseAdapterListener<GeneralFile> {
+public class FilePickerActivity extends BaseActivity implements View.OnClickListener, ActivityInteractionListener.FragmentToActivity{
 
     private Toolbar mToolbar;
     private SearchView mSearchView;
     private MenuItem mItemSearch;
-    private View mContainerLoading;
-    private View mContainerViewpager;
-    private FloatingActionButton mFAB;
-    private CoordinatorLayout coordinatorLayout;
-
-    private TableLayout mTablayout;
-    private ViewPager mViewPager;
+    private FrameLayout mContainerFragment;
 
     private FilePickerOptions options;
     private int[] colorScheme;
 
-    private ProgressBar mProgressBar;
-    private Snackbar mSnackbar;
-
     private PopupWindow mPopUpWindow;
 
-    private String TAG = getClass().getSimpleName();
+    private ActivityInteractionListener.ActivityToFragment mActivityListener;
 
-    private FileDataManager<GeneralFile> mFileDataManager;
+    private String TAG = getClass().getSimpleName();
 
     private Sort mSort;
 
@@ -89,16 +64,13 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.activity_file_picker_tabbed);
+        super.onCreate(savedInstanceState, R.layout.activity_file_picker_simple);
     }
 
     private void initExtras() {
-        this.mFileDataManager = new FileDataManager<GeneralFile>();
-        this.mSort = new Sort();
+        mSort = new Sort();
         options = getIntent().getParcelableExtra(Constant.EXTRA_OPTIONS);
-        this.colorScheme = options.getColorScheme();
-        Log.d(TAG,"Is enabled : " +options.isEnableDeepScan());
-
+        colorScheme = options.getColorScheme();
     }
 
     @Override
@@ -113,19 +85,10 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
 
         getSupportActionBar().setTitle(options.getHint());
 
-        mContainerLoading = findViewById(R.id.container_loadingView);
-        mContainerViewpager = findViewById(R.id.container_viewpager);
-        coordinatorLayout = findViewById(R.id.coordinator);
-        mViewPager = findViewById(R.id.viewPager);
-        mTablayout = findViewById(R.id.tab_main);
-
-        mFAB = findViewById(R.id.fab_done);
-        mFAB.setOnClickListener(this);
+        mContainerFragment = findViewById(R.id.container_fragment);
 
         mSearchView = findViewById(R.id.searchview);
         mSearchView.setSubmitButtonEnabled(false);
-
-        mProgressBar = findViewById(R.id.progressBar);
 
         ImageView closeButton = mSearchView.findViewById(R.id.search_close_btn);
         closeButton.setImageResource(R.drawable.ic_close_white);
@@ -137,14 +100,14 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mFileDataManager.filterFile(query);
+                mActivityListener.filter(query);
                 mSearchView.clearFocus();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mFileDataManager.filterFile(newText);
+                mActivityListener.filter(newText);
                 return true;
             }
         });
@@ -159,7 +122,7 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
             e.printStackTrace();
         }
 
-        mSnackbar = Snackbar.make(coordinatorLayout,getString(R.string.text_loading),Snackbar.LENGTH_INDEFINITE);
+
         initPermission();
     }
 
@@ -174,13 +137,8 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
             Drawable backArrow = ContextCompat.getDrawable(this,R.drawable.ic_arrow_back_white);
             backArrow.setColorFilter(colorScheme[2], PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(backArrow);
-            mProgressBar.getIndeterminateDrawable().setColorFilter(colorScheme[2], PorterDuff.Mode.MULTIPLY);
             ((TextView)(findViewById(R.id.text_loading))).setTextColor(colorScheme[2]);
-            ((TextView)mSnackbar.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(colorScheme[2]);
-        }
-        else {
-            mProgressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this,R.color.colorPrimary),
-                    PorterDuff.Mode.MULTIPLY);
+
         }
 
     }
@@ -189,70 +147,32 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},Constant.REQ_CODE_PERMISSION);
-            else getFiles();
+            else showFragment();
         }
-        else getFiles();
+        else showFragment();
     }
-
-    private void switchLoadingState(boolean isLoading){
-        if(isLoading) {
-            if (options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-                mContainerLoading.setVisibility(View.VISIBLE);
-                mContainerViewpager.setVisibility(View.GONE);
-            } else if (options.getUpdateMethod() == FileUpdateMethod.STREAM) {
-                mContainerLoading.setVisibility(View.GONE);
-                mContainerViewpager.setVisibility(View.VISIBLE);
-                mSnackbar.show();
-            }
-        }
-        else {
-            if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-                mContainerLoading.setVisibility(View.GONE);
-                mContainerViewpager.setVisibility(View.VISIBLE);
-            }
-            else if(options.getUpdateMethod() == FileUpdateMethod.STREAM){
-                mSnackbar.dismiss();
-            }
-        }
-    }
-
-    private void getFiles() {
-        switchLoadingState(true);
-        FileLoaderHelper.getAllfiles(this, options, new ScanResultCallback() {
-            @Override
-            public void onFileScanFinished(List<GeneralFile> fileList) {
-                if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-//                    mFileDataManager.replaceData(fileList);
-//                    mFileDataManager.notifyDataChange();
-                }
-                mFileDataManager.setHasfinishedLoading(true);
-                switchLoadingState(false);
-            }
-
-            @Override
-            public void onFileScanUpdate(GeneralFile file) {
-//                mFileDataManager.addData(file);
-                // Filter file when search view is active
-                // If the commencing file fulfill the query pattern, then add it to adapter
-//                if(mSearchView.getVisibility() == View.VISIBLE)
-//                    mFileDataManager.filterFile(mSearchView.getQuery().toString());
-//                else mFileDataManager.notifyDataInsert();
-//                switchLoadingState(false);
-            }
-        });
-    }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
             case Constant.REQ_CODE_PERMISSION:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    getFiles();
-                else Toast.makeText(this,getString(R.string.text_permission_not_granted),Toast.LENGTH_LONG).show();
+                    showFragment();
+                else {
+                    Toast.makeText(this, getString(R.string.text_permission_not_granted), Toast.LENGTH_LONG).show();
+                    finish();
+                }
                 return;
         }
+    }
+
+    private void showFragment(){
+        FilePickerFragment fragment = FilePickerFragment.newInstance(options);
+        ActivityUtil.addFragment(getSupportFragmentManager(),fragment,R.id.container_fragment);
+        if(fragment instanceof ActivityInteractionListener.ActivityToFragment){
+            this.mActivityListener = fragment;
+        }
+        else throw new IllegalStateException("Fragment must imlement ActivityInteractionListener");
     }
 
     @Override
@@ -292,32 +212,7 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
         else return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int i = item.getItemId();
-        if (i == R.id.action_open) {
-            GeneralFile file = ((SimpleFileAdapter)mFileDataManager.getAdapter()).getCurrentItem();
 
-            String mimeType = file.getMimeType();
-            if(mimeType == null){
-                Toast.makeText(this,"File type not supported",Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri data = Uri.fromFile(new File(file.getFilepath()));
-            intent.setDataAndType(data,mimeType);
-            startActivity(intent);
-            return true;
-        }
-        else if(i == R.id.action_select){
-            GeneralFile file = ((SimpleFileAdapter)mFileDataManager.getAdapter()).getCurrentItem();
-            onItemSelected(file);
-            return true;
-        }
-        else return super.onContextItemSelected(item);
-    }
 
     private void showPopUpWindow() {
         LayoutInflater inflater = getLayoutInflater();
@@ -373,7 +268,7 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
 
         mSort.setType(typeNow, switchOrder);
 
-        mFileDataManager.sortFile(mSort.getType(),mSort.getOrder());
+        mActivityListener.sort(mSort.getType(),mSort.getOrder());
 
         mPopUpWindow.dismiss();
     }
@@ -408,7 +303,7 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
             mSearchView.setVisibility(View.GONE);
             mItemSearch.setVisible(true);
             mSearchView.setQuery("",false);
-            mFileDataManager.recoverOriginalData();
+            mActivityListener.recoverOriginalData();
         }
         else super.onBackPressed();
     }
@@ -417,60 +312,25 @@ public class FilePickerTabbedActivity extends BaseActivity implements View.OnCli
     public void onClick(View view) {
         int i = view.getId();
         onPopUpClicked(i);
-        if( i == R.id.fab_done){
-            returnResult();
-        }
     }
 
     @Override
-    public boolean onItemSelected(GeneralFile file) {
-        int selectedFileCount = mFileDataManager.getSelectedFile().size();
-        if(selectedFileCount >= options.getFileLimit())
-            return false;
-
-        mFileDataManager.addSelectedFile(file.getId(),file);
-
-        if(options.isSinglePick())
-            returnResult();
-
-        selectedFileCount = mFileDataManager.getSelectedFile().size();
-        if(!options.isSinglePick() && selectedFileCount > 0) {
-            mFAB.show();
-            getSupportActionBar().setTitle("Selected file ("+selectedFileCount+"/"+options.getFileLimit()+")");
-        }
-        return true;
+    public boolean isSearchVisible() {
+        return mSearchView.getVisibility() == View.VISIBLE;
     }
 
     @Override
-    public boolean onItemUnselected(GeneralFile file) {
-        mFileDataManager.removeSelectedFile(file.getId());
-        int selectedFileCount = mFileDataManager.getSelectedFile().size();
-        if(!options.isSinglePick()) {
-            if(selectedFileCount < 1) {
-                mFAB.hide();
-                getSupportActionBar().setTitle(options.getHint());
-            }
-            else getSupportActionBar().setTitle("Selected file ("+selectedFileCount+"/"+options.getFileLimit()+")");
-        }
-        return true;
+    public String getSearchQuery() {
+        return mSearchView.getQuery().toString();
     }
 
     @Override
-    public boolean isFileSelected(GeneralFile file) {
-        return mFileDataManager.isFileSelected(file.getId());
+    public Sort.Type getSortType() {
+        return mSort.getType();
     }
 
-    private void returnResult(){
-        ArrayList<String> results = new ArrayList<>();
-        for (Map.Entry<String, GeneralFile> selectedFile : mFileDataManager.getSelectedFile().entrySet()){
-            String path = selectedFile.getValue().getFilepath();
-            results.add(path);
-        }
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(MultiFilePicker.RESULT_FILE,results);
-        setResult(RESULT_OK,intent);
-        finish();
+    @Override
+    public Sort.Order getSortOrder() {
+        return mSort.getOrder();
     }
-
-
 }

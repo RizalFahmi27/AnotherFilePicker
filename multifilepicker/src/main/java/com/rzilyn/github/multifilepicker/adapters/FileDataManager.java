@@ -25,43 +25,44 @@ public class FileDataManager <T> implements FileContract<T> {
 
     private Map<String, T> selectedFile = new LinkedHashMap<>();
 
-    private BaseFileAdapter adapter;
+    private List<BaseFileAdapter> adapter;
     private boolean hasFinishedloading = false;
 
     public FileDataManager(){
+        this.adapter = new ArrayList<>();
         this.originalFileList = new ArrayList<>();
         this.tempFileList = new ArrayList<>();
     }
 
     public void addAdapter(BaseFileAdapter adapter) {
-        this.adapter = adapter;
+        this.adapter.add(adapter);
     }
 
-    public void replaceData(List<T> fileList) {
+    public void replaceData(List<T> fileList, int position) {
         this.originalFileList = fileList;
         this.tempFileList = fileList;
-        replaceAdapterData(fileList);
+        replaceAdapterData(fileList,position);
     }
 
-    private void replaceAdapterData(List<T> fileList){
-        if(adapter instanceof SimpleFileAdapter)
-            adapter.replaceData((List<GeneralFile>) fileList);
+    private void replaceAdapterData(List<T> fileList, int position){
+        if(adapter.get(position) instanceof SimpleFileAdapter)
+            adapter.get(position).replaceData((List<GeneralFile>) fileList);
         Log.d("SearchQuery","Text : "+fileList.size());
-        notifyDataChange();
+        notifyDataChange(position);
     }
 
-    private void addAdapterData(T file){
-        if(adapter instanceof SimpleFileAdapter)
-            adapter.addData((GeneralFile) file);
-        notifyDataInsert();
+    private void addAdapterData(T file, int position){
+        if(adapter.get(position) instanceof SimpleFileAdapter)
+            adapter.get(position).addData((GeneralFile) file);
+        notifyDataInsert(position);
     }
 
-    public void notifyDataInsert(){
-        adapter.notifyDataInsert();
+    public void notifyDataInsert(int position){
+        adapter.get(position).notifyDataInsert();
     }
 
-    public void notifyDataChange(){
-        adapter.notifyDataSetChanged();
+    public void notifyDataChange(int position){
+        adapter.get(position).notifyDataSetChanged();
     }
 
     public void notifyItemRangeChanged(){
@@ -69,27 +70,27 @@ public class FileDataManager <T> implements FileContract<T> {
     }
 
     @Override
-    public BaseFileAdapter getAdapter(){
-        return adapter;
+    public BaseFileAdapter getAdapter(int position){
+        return adapter.get(position);
     }
 
 
-    public void recoverOriginalData(){
+    public void recoverOriginalData(int position){
         tempFileList.clear();
         tempFileList.addAll(originalFileList);
-        replaceAdapterData(tempFileList);
+        replaceAdapterData(tempFileList,position);
     }
 
-    public void sortFile(Sort.Type type, Sort.Order order, boolean replaceData){
+    public void sortFile(Sort.Type type, Sort.Order order, boolean replaceData, int position){
         if(adapter instanceof SimpleFileAdapter) {
             Collections.sort((List<GeneralFile>) tempFileList, new BaseFile.FileComparator(type,order));
             Collections.sort((List<GeneralFile>) originalFileList, new BaseFile.FileComparator(type,order));
             if(replaceData)
-               replaceAdapterData(tempFileList);
+               replaceAdapterData(tempFileList, position);
         }
     }
 
-    public void filterFile(final String phrase, boolean replaceData){
+    public void filterFile(final String phrase, boolean replaceData, int position){
         if(adapter instanceof SimpleFileAdapter) {
             List<T> result;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -109,7 +110,7 @@ public class FileDataManager <T> implements FileContract<T> {
                     }
                 });
             if(replaceData)
-                replaceTempData(result);
+                replaceTempData(result,position);
         }
     }
 
@@ -121,33 +122,17 @@ public class FileDataManager <T> implements FileContract<T> {
         this.hasFinishedloading = flag;
     }
 
-    public void replaceTempData(List<T> fileList) {
+    public void replaceTempData(List<T> fileList, int position) {
         tempFileList = fileList;
-        replaceAdapterData(fileList);
+        replaceAdapterData(fileList,position);
     }
 
-    public void addData(T file) {
+    public void addData(T file, int position) {
         originalFileList.add(file);
         tempFileList.add(file);
-        addAdapterData(file);
+        addAdapterData(file,position);
     }
 
-    public void replaceAndSetData(List<T> fileList, String projection, Sort.Type sortType, Sort.Order sortOrder, String query){
-        this.originalFileList = fileList;
-        this.tempFileList = fileList;
-        setData(projection,sortType,sortOrder,query);
-    }
-
-    public void addAndSetData(T file, String projection, Sort.Type sortType, Sort.Order sortOrder, String query){
-        originalFileList.add(file);
-        tempFileList.add(file);
-        setData(projection,sortType,sortOrder,query);
-    }
-
-    public void addTempData(T file) {
-        tempFileList.add(file);
-        notifyDataInsert();
-    }
 
     public void addSelectedFile(String key, T file) {
         selectedFile.put(key,file);
@@ -171,20 +156,5 @@ public class FileDataManager <T> implements FileContract<T> {
         return tempFileList;
     }
 
-    @Override
-    public void setData(String projection, Sort.Type sortType, Sort.Order sortOrder, String searchQuery) {
-//        recoverOriginalData();
-        List<T> dataToBeSet = new ArrayList<>();
-        for(T t : tempFileList){
-            if(adapter instanceof SimpleFileAdapter){
-                GeneralFile file = (GeneralFile) t;
-                if(file.getFileType().equals(projection))
-                    dataToBeSet.add(t);
-            }
-        }
-        sortFile(sortType,sortOrder,false);
-        filterFile(searchQuery,false);
-        replaceAdapterData(dataToBeSet);
-    }
 
 }

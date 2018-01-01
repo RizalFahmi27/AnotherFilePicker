@@ -1,5 +1,6 @@
 package com.rzilyn.github.multifilepicker.adapters;
 
+import android.support.design.widget.TabItem;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -37,5 +38,11 @@ public class FragmentSectionAdapter extends FragmentPagerAdapter{
     public void addFragment(Fragment fragment, String title){
         mFragmentTitle.add(title);
         mFragments.add(fragment);
+    }
+
+    public void removeFragment(int position){
+        mFragmentTitle.remove(position);
+        mFragments.remove(position);
+        notifyDataSetChanged();
     }
 }

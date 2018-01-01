@@ -1,5 +1,6 @@
 package com.rzilyn.github.multifilepicker;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
@@ -32,13 +33,16 @@ public abstract class BaseFragment extends Fragment {
         }
         this.colorScheme = options.getColorScheme();
         this.mFileDataManager = new FileDataManager<>();
-        if(getActivity() instanceof ActivityInteractionListener.FragmentToActivity){
-            this.mFragmentListener = (ActivityInteractionListener.FragmentToActivity) getActivity();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(context instanceof ActivityInteractionListener.FragmentToActivity){
+            this.mFragmentListener = (ActivityInteractionListener.FragmentToActivity) context;
         }
         else throw new IllegalStateException("Activity must implement ActivityInteractionListener");
     }
-
-
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState, @LayoutRes int layoutId) {
         View view = LayoutInflater.from(getActivity()).inflate(layoutId,container,false);

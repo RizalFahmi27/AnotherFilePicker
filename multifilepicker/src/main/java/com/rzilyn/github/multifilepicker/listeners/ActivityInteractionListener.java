@@ -7,14 +7,16 @@ import com.rzilyn.github.multifilepicker.utils.Sort;
  */
 
 public interface ActivityInteractionListener {
-    public interface ActivityToFragment {
+    interface ActivityToFragment {
         void filter(String query);
         void sort(Sort.Type type, Sort.Order order);
         void recoverOriginalData();
     }
 
-    public interface FragmentToActivity{
+    interface FragmentToActivity{
         boolean isSearchVisible();
         String getSearchQuery();
+        Sort.Type getSortType();
+        Sort.Order getSortOrder();
     }
 }

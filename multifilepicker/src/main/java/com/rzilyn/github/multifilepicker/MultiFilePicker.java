@@ -14,7 +14,7 @@ public class MultiFilePicker {
     public static final String RESULT_FILE = "result_file";
 
     public static void pickFile(Activity activity, FilePickerOptions options, int requestCode){
-        Intent intent = new Intent(activity,FilePickerSimpleActivity.class);
+        Intent intent = new Intent(activity,FilePickerActivity.class);
         intent.putExtra(Constant.EXTRA_OPTIONS,options);
         activity.startActivityForResult(intent,requestCode);
     }
