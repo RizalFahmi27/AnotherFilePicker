@@ -2,13 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.rzilyn.github.multifilepicker.fragments.FilePickerTabbedFragment">
-
-
         <android.support.design.widget.TabLayout
             android:id="@+id/tablayout_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:tabGravity="fill"
+            app:tabMode="scrollable"
+            android:background="@color/colorPrimary"
+            app:tabTextColor="@color/colorWhite"
+            app:tabSelectedTextColor="@color/colorOrange"
+            app:tabIndicatorHeight="4dp">
         </android.support.design.widget.TabLayout>
 
         <android.support.v4.view.ViewPager

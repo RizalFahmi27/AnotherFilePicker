@@ -46,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
                         .enableTab(true)
                         .addFileFilter(FileTypePreset.DOCUMENTS)
                         .setFileUpdateMethod(FileUpdateMethod.STREAM)
-//                        .setFileUpdateMethod(FileUpdateMethod.BUFFER)
-                        .setColorScheme(ContextCompat.getColor(MainActivity.this,R.color.colorBlue),
-                                ContextCompat.getColor(MainActivity.this,R.color.colorBrown),
-                                ContextCompat.getColor(MainActivity.this,R.color.colorGreen))
+                        .setFileUpdateMethod(FileUpdateMethod.BUFFER)
+//                        .setColorScheme(ContextCompat.getColor(MainActivity.this,R.color.colorBlue),
+//                                ContextCompat.getColor(MainActivity.this,R.color.colorBrown),
+//                                ContextCompat.getColor(MainActivity.this,R.color.colorGreen))
                         .build();
 
                 MultiFilePicker.pickFile(MainActivity.this,options,10);

@@ -11,7 +11,6 @@ import java.util.Map;
  */
 
 public interface FileContract<T> {
-    List<T> getData();
     BaseFileAdapter getAdapter(int position);
-//    void setData(String projection, Sort.Type sortType, Sort.Order sortOrder, String searchQuery, int position);
+    void setData(String projection, Sort.Type sortType, Sort.Order sortOrder, String searchQuery, int position);
 }

@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +31,7 @@ import com.rzilyn.github.multifilepicker.listeners.ActivityInteractionListener;
 import com.rzilyn.github.multifilepicker.listeners.BaseAdapterListener;
 import com.rzilyn.github.multifilepicker.listeners.FragmentInteractionListener;
 import com.rzilyn.github.multifilepicker.loader.ScanResultCallback;
+import com.rzilyn.github.multifilepicker.model.BaseFile;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
 import com.rzilyn.github.multifilepicker.utils.ActivityUtil;
 import com.rzilyn.github.multifilepicker.utils.Constant;
@@ -59,6 +58,8 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
     private ProgressBar mProgressBar;
     private Snackbar mSnackbar;
 
+    private SelectedFile selectedFile;
+
     public FilePickerFragment() {
         // Required empty public constructor
     }
@@ -79,9 +80,6 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
         mFAB.setOnClickListener(this);
         mProgressBar = view.findViewById(R.id.progressBar);
         mSnackbar = Snackbar.make(view,getString(R.string.text_loading),Snackbar.LENGTH_INDEFINITE);
-
-        this.mFileDataManager.addAdapter(new SimpleFileAdapter(new ArrayList<GeneralFile>(0),
-                getActivity(),this,colorScheme, !options.isSinglePick()));
     }
 
     @Override
@@ -92,11 +90,17 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
 
         Fragment fragment = null;
 
-        // TODO prevent from illegalstate casting
         if(options.isTabEnabled()){
             fragment = FilePickerTabbedFragment.newInstance();
+            for(int i=0;i<options.getFileFilters().size();i++)
+                this.mFileDataManager.addAdapter(new SimpleFileAdapter(new ArrayList<GeneralFile>(0),
+                        getActivity(),this,colorScheme,i,options.getFileFilters().get(i), !options.isSinglePick()));
         }
-        else fragment = FilePickerSimpleFragment.newInstance();
+        else {
+            fragment = FilePickerSimpleFragment.newInstance();
+            this.mFileDataManager.addAdapter(new SimpleFileAdapter(new ArrayList<GeneralFile>(0),
+                    getActivity(),this,colorScheme,0, null, !options.isSinglePick()));
+        }
         ActivityUtil.addFragment(getChildFragmentManager(),fragment,R.id.container_childFragment);
         return view;
     }
@@ -123,6 +127,7 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             mFAB.show();
             ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Selected file ("+selectedFileCount+"/"+options.getFileLimit()+")");
         }
+        mFileDataManager.getAdapter(selectedFile.getAdapterPosition()).notifyItemChanged(selectedFile.getFilePosition());
         return true;
     }
 
@@ -137,6 +142,7 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             }
             else ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Selected file ("+selectedFileCount+"/"+options.getFileLimit()+")");
         }
+        mFileDataManager.getAdapter(selectedFile.getAdapterPosition()).notifyItemChanged(selectedFile.getFilePosition());
         return true;
     }
 
@@ -146,12 +152,23 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
     }
 
     @Override
+    public void onItemLongClicked(GeneralFile file, int filePosition, int adapterPosition) {
+        this.selectedFile = new SelectedFile(file,filePosition,adapterPosition);
+    }
+
+    @Override
+    public void onItemLongClicked(GeneralFile file) {
+        this.selectedFile = new SelectedFile(file);
+
+    }
+
+
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int i = item.getItemId();
+        GeneralFile file = (GeneralFile) selectedFile.getFile();
         if (i == R.id.action_open) {
-            GeneralFile file = ((SimpleFileAdapter)mFileDataManager.getAdapter()).getCurrentItem();
-
             String mimeType = file.getMimeType();
             if(mimeType == null){
                 Toast.makeText(getActivity(),"File type not supported",Toast.LENGTH_SHORT).show();
@@ -165,8 +182,11 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             return true;
         }
         else if(i == R.id.action_select){
-            GeneralFile file = ((SimpleFileAdapter)mFileDataManager.getAdapter()).getCurrentItem();
             onItemSelected(file);
+            return true;
+        }
+        else if(i == R.id.action_unselect) {
+            onItemUnselected(file);
             return true;
         }
         else return super.onContextItemSelected(item);
@@ -178,10 +198,7 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
             @Override
             public void onFileScanFinished(List<GeneralFile> fileList) {
                 if(options.getUpdateMethod() == FileUpdateMethod.BUFFER) {
-                    if(options.isTabEnabled())
-                    mFileDataManager.replaceAndSetData(fileList,options.getFileFilters().get(0),mFragmentListener.getSortType(),
-                            mFragmentListener.getSortOrder(),mFragmentListener.getSearchQuery());
-                    else mFileDataManager.replaceData(fileList);
+                    mFileDataManager.replaceData(fileList);
                 }
                 mFileDataManager.setHasfinishedLoading(true);
                 switchLoadingState(false);
@@ -193,8 +210,8 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
                 // Filter file when search view is active
                 // If the emitting file fulfill the query pattern, then add it to adapter
                 if(mFragmentListener.isSearchVisible())
-                    mFileDataManager.filterFile(mFragmentListener.getSearchQuery(),true);
-                else mFileDataManager.notifyDataChange();
+                    mFileDataManager.filterFile(mFragmentListener.getSearchQuery(),true,0);
+                else mFileDataManager.notifyDataChange(0);
             }
         });
     }
@@ -252,20 +269,20 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
     }
 
     @Override
-    public void filter(String query) {
+    public void filter(String query, int position) {
         if(mFileDataManager.hasFinishedLoading()) {
-            mFileDataManager.filterFile(query,true);
+            mFileDataManager.filterFile(query,true,position);
         }
     }
 
     @Override
-    public void sort(Sort.Type type, Sort.Order order) {
-        mFileDataManager.sortFile(type,order,true);
+    public void sort(Sort.Type type, Sort.Order order, int position) {
+        mFileDataManager.sortFile(type,order,true,position);
     }
 
     @Override
-    public void recoverOriginalData() {
-        mFileDataManager.recoverOriginalData();
+    public void recoverOriginalData(int position) {
+        mFileDataManager.recoverOriginalData(position);
     }
 
     @Override
@@ -276,5 +293,45 @@ public class FilePickerFragment extends BaseFragment implements BaseAdapterListe
     @Override
     public FilePickerOptions getFileOptions() {
         return options;
+    }
+
+    class SelectedFile{
+        private BaseFile file;
+        private int filePosition;
+        private int adapterPosition;
+
+        public SelectedFile(BaseFile file, int filePosition, int adapterPosition) {
+            this.file = file;
+            this.filePosition = filePosition;
+            this.adapterPosition = adapterPosition;
+        }
+
+        public SelectedFile(BaseFile file){
+            this.file = file;
+        }
+
+        public BaseFile getFile() {
+            return file;
+        }
+
+        public void setFile(BaseFile file) {
+            this.file = file;
+        }
+
+        public int getFilePosition() {
+            return filePosition;
+        }
+
+        public void setFilePosition(int filePosition) {
+            this.filePosition = filePosition;
+        }
+
+        public int getAdapterPosition() {
+            return adapterPosition;
+        }
+
+        public void setAdapterPosition(int adapterPosition) {
+            this.adapterPosition = adapterPosition;
+        }
     }
 }

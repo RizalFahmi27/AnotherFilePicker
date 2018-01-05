@@ -15,6 +15,11 @@ public class GeneralFile extends BaseFile implements Parcelable{
         this.mimeType = mimeType;
     }
 
+    // Dummy instance
+    public GeneralFile(){
+        super(null,null,null,null,null,0);
+    }
+
     public String getMimeType() {
         return mimeType;
     }

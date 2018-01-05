@@ -6,6 +6,10 @@
         android:title="@string/text_select"/>
 
     <item
+        android:id="@+id/action_unselect"
+        android:title="@string/text_unselect"/>
+
+    <item
         android:id="@+id/action_open"
         android:title="@string/text_open"/>
 

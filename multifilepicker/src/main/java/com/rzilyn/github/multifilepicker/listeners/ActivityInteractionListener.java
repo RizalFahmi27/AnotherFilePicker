@@ -8,9 +8,9 @@ import com.rzilyn.github.multifilepicker.utils.Sort;
 
 public interface ActivityInteractionListener {
     interface ActivityToFragment {
-        void filter(String query);
-        void sort(Sort.Type type, Sort.Order order);
-        void recoverOriginalData();
+        void filter(String query, int position);
+        void sort(Sort.Type type, Sort.Order order, int position);
+        void recoverOriginalData(int position);
     }
 
     interface FragmentToActivity{
@@ -18,5 +18,6 @@ public interface ActivityInteractionListener {
         String getSearchQuery();
         Sort.Type getSortType();
         Sort.Order getSortOrder();
+        void setActiveTab(int position);
     }
 }

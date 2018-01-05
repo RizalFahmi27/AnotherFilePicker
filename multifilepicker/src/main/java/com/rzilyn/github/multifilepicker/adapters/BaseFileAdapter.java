@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.rzilyn.github.multifilepicker.model.BaseFile;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
 
 import java.util.List;
@@ -13,16 +14,16 @@ import java.util.List;
  * Created by Rizal Fahmi on 19-Dec-17.
  */
 
-public class BaseFileAdapter extends RecyclerView.Adapter {
-    public List<GeneralFile> fileList;
+public class BaseFileAdapter<T extends BaseFile> extends RecyclerView.Adapter {
+    public List<T> fileList;
     public Context mContext;
     public int[] colorScheme;
 
-    protected void replaceData(List<GeneralFile> fileList){
+    protected void replaceData(List<T> fileList){
         this.fileList = fileList;
     }
 
-    protected void addData(GeneralFile file){
+    protected void addData(T file){
         this.fileList.add(file);
     }
 
@@ -34,7 +35,11 @@ public class BaseFileAdapter extends RecyclerView.Adapter {
         notifyItemInserted(fileList.size() - 1);
     }
 
-    public BaseFileAdapter(List<GeneralFile> fileList, Context context, int[] colorScheme){
+    protected List<T> getFileList(){
+        return fileList;
+    }
+
+    public BaseFileAdapter(List<T> fileList, Context context, int[] colorScheme){
         this.fileList = fileList;
         this.mContext = context;
         this.colorScheme = colorScheme;

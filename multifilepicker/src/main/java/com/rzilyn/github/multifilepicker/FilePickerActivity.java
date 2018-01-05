@@ -47,7 +47,7 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
     private Toolbar mToolbar;
     private SearchView mSearchView;
     private MenuItem mItemSearch;
-    private FrameLayout mContainerFragment;
+    private int tabPosition = 0;
 
     private FilePickerOptions options;
     private int[] colorScheme;
@@ -59,8 +59,6 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
     private String TAG = getClass().getSimpleName();
 
     private Sort mSort;
-
-    private final String ADAPTER_TAG = "tag1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,29 +83,27 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
 
         getSupportActionBar().setTitle(options.getHint());
 
-        mContainerFragment = findViewById(R.id.container_fragment);
-
         mSearchView = findViewById(R.id.searchview);
         mSearchView.setSubmitButtonEnabled(false);
 
         ImageView closeButton = mSearchView.findViewById(R.id.search_close_btn);
         closeButton.setImageResource(R.drawable.ic_close_white);
 
-        EditText txtSearch = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        final EditText txtSearch = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
         txtSearch.setHintTextColor(Color.WHITE);
         txtSearch.setTextColor(getResources().getColor(R.color.colorWhite));
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mActivityListener.filter(query);
+                mActivityListener.filter(query,tabPosition);
                 mSearchView.clearFocus();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mActivityListener.filter(newText);
+                mActivityListener.filter(newText,tabPosition);
                 return true;
             }
         });
@@ -184,15 +180,6 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        if(v.getId() == R.id.recyclerview_file){
-            MenuInflater menuInflater = getMenuInflater();
-            menuInflater.inflate(R.menu.menu_file,menu);
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int i = item.getItemId();
         if (i == R.id.action_search) {
@@ -221,6 +208,9 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
         popUpView.findViewById(R.id.container_sortByName).setOnClickListener(this);
         popUpView.findViewById(R.id.container_sortBySize).setOnClickListener(this);
         popUpView.findViewById(R.id.container_sortByType).setOnClickListener(this);
+
+        if(options.isTabEnabled())
+            popUpView.findViewById(R.id.container_sortByType).setVisibility(View.GONE);
 
         mPopUpWindow = new PopupWindow(popUpView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -268,7 +258,7 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
 
         mSort.setType(typeNow, switchOrder);
 
-        mActivityListener.sort(mSort.getType(),mSort.getOrder());
+        mActivityListener.sort(mSort.getType(),mSort.getOrder(),tabPosition);
 
         mPopUpWindow.dismiss();
     }
@@ -303,7 +293,7 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
             mSearchView.setVisibility(View.GONE);
             mItemSearch.setVisible(true);
             mSearchView.setQuery("",false);
-            mActivityListener.recoverOriginalData();
+            mActivityListener.recoverOriginalData(tabPosition);
         }
         else super.onBackPressed();
     }
@@ -332,5 +322,10 @@ public class FilePickerActivity extends BaseActivity implements View.OnClickList
     @Override
     public Sort.Order getSortOrder() {
         return mSort.getOrder();
+    }
+
+    @Override
+    public void setActiveTab(int position) {
+        this.tabPosition = position;
     }
 }

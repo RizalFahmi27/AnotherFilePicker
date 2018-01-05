@@ -166,7 +166,7 @@ public class FilePickerOptions implements Parcelable {
         /**
          * Set preferred orientation for library to use.
          * If not set, default will follow the phone configuration
-         * @param orientation
+         * @param orientation Preferred orientation
          * @return
          */
         public Build setOrientation(Orientation orientation) {
@@ -175,8 +175,8 @@ public class FilePickerOptions implements Parcelable {
         }
 
         /**
-         * Enable built in file manager button for traditional file browsing.
-         * Will automatically set to disabled when multi file pick is enabled.
+         * Enable single file pick.
+         * Will automatically set to disable when multi file pick is enabled.
          * @param enable
          * @return
          */
@@ -198,9 +198,7 @@ public class FilePickerOptions implements Parcelable {
 
         /**
          * Set preferred way for ui to update the file list
-         * Set stream to subsequently update the file list when file scanner found any target file during the background task
-         * Set buffer to wait until file scanner finished to scan the entire file in storage and then update the file list
-         * @param updateMethod
+         * @param updateMethod Set stream to subsequently update the file list when file scanner found any target file during the background task or set buffer to wait until file scanner finished to scan the entire file in storage and then update the file list
          * @return
          */
         public Build setFileUpdateMethod(FileUpdateMethod updateMethod){
@@ -232,26 +230,56 @@ public class FilePickerOptions implements Parcelable {
             return this;
         }
 
+        /**
+         * Set picker hint / main toolbar title
+         * @param hint
+         * @return
+         */
         public Build setHint(String hint){
             this.hint = hint;
             return this;
         }
 
+        /**
+         * Add file filter support by string individually
+         * Do not include '.' onto the parameter
+         * For example : 'jpg', 'doc', 'pdf', etc
+         * @param filter
+         * @return
+         */
         public Build addFileFilter(String filter){
             fileFilters.add(filter);
             return this;
         }
 
+        /**
+         * Add file filter support by string list
+         * Do not include '.' onto the parameter
+         * For example : 'jpg', 'doc', 'pdf', etc
+         * @param filter
+         * @return
+         */
         public Build addFileFilter(String... filter){
             fileFilters.addAll(Arrays.asList(filter));
             return this;
         }
 
+        /**
+         * Add file filter support by using {@link FileTypePreset}
+         * For example : {@link FileTypePreset}.Document will include 'pdf','doc','docx','xls','xlsx','ppt','pptx', and 'txt'
+         * @param preset
+         * @return
+         */
         public Build addFileFilter(FileTypePreset preset){
             fileFilters.addAll(Arrays.asList(preset.getPeset()));
             return this;
         }
 
+        /**
+         * Separate list of file by tabbed fragment based on given file filter
+         * @param enable
+         * @return
+         */
         public Build enableTab(boolean enable){
             this.enableTab = enable;
             return this;
@@ -261,8 +289,6 @@ public class FilePickerOptions implements Parcelable {
             int isSinglePick = (this.singlePick || fileLimit < 2) ? 1 : 0;
             int deepScan = enableDeepScan ? 1 : 0;
             int tab = enableTab ? 1 : 0;
-            if(enableTab)
-                updateMethod = FileUpdateMethod.BUFFER;
             return new FilePickerOptions(orientation,
                     isSinglePick,
                     fileLimit,

@@ -3,12 +3,10 @@ package com.rzilyn.github.multifilepicker.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +16,6 @@ import com.rzilyn.github.multifilepicker.FilePickerOptions;
 import com.rzilyn.github.multifilepicker.R;
 import com.rzilyn.github.multifilepicker.adapters.FileContract;
 import com.rzilyn.github.multifilepicker.adapters.FragmentSectionAdapter;
-import com.rzilyn.github.multifilepicker.adapters.SimpleFileAdapter;
 import com.rzilyn.github.multifilepicker.listeners.FragmentInteractionListener;
 import com.rzilyn.github.multifilepicker.model.GeneralFile;
 import com.rzilyn.github.multifilepicker.utils.Sort;
@@ -61,35 +58,46 @@ public class FilePickerTabbedFragment extends Fragment implements FragmentIntera
         mViewPager = view.findViewById(R.id.viewPager_main);
         mTablayout = view.findViewById(R.id.tablayout_main);
 
+        FilePickerOptions options = mFragmentInteractionListener.getFileOptions();
+        if(options.getColorScheme().length > 0)
+            mTablayout.setBackgroundColor(options.getColorScheme()[0]);
+        int selectedTextColor;
+        int normalTextColor = mTablayout.getTabTextColors().getColorForState(new int[]{-android.R.attr.state_selected}, ContextCompat.getColor(getActivity(),R.color.colorWhite));
+
+        if(options.getColorScheme().length > 1)
+            normalTextColor = options.getColorScheme()[1];
+        if(options.getColorScheme().length > 2)
+            selectedTextColor = options.getColorScheme()[2];
+        else selectedTextColor = normalTextColor;
+
+        mTablayout.setTabTextColors(normalTextColor,selectedTextColor);
+        mTablayout.setSelectedTabIndicatorColor(selectedTextColor);
+
         setupViewPager();
 
         return view;
     }
 
-    private void setData(String projection){
-        Sort.Type sortType = ((FilePickerActivity)getActivity()).getSortType();
-        Sort.Order sortOrder = ((FilePickerActivity)getActivity()).getSortOrder();
-        String searchQuery = ((FilePickerActivity)getActivity()).getSearchQuery();
-        mFragmentInteractionListener.getFileContract().setData(projection,sortType,sortOrder,searchQuery);
-    }
 
     private void setupViewPager() {
         mPagerAdapter = new FragmentSectionAdapter(getChildFragmentManager());
         final List<String> supportedFileType = mFragmentInteractionListener.getFileOptions().getFileFilters();
-        for(String s : supportedFileType){
-            FilePickerSimpleFragment fragment = FilePickerSimpleFragment.newInstance(s);
-            mPagerAdapter.addFragment(fragment,s);
+        for(int i=0;i<supportedFileType.size();i++){
+            FilePickerSimpleFragment fragment = FilePickerSimpleFragment.newInstance(i);
+            mPagerAdapter.addFragment(fragment,supportedFileType.get(i));
         }
-        ((SimpleFileAdapter)mFragmentInteractionListener.getFileContract().
-                getAdapter()).setProjection(supportedFileType.get(0));
         mViewPager.setOffscreenPageLimit(supportedFileType.size());
         mViewPager.setAdapter(mPagerAdapter);
         mTablayout.setupWithViewPager(mViewPager);
-        setData(supportedFileType.get(0));
         mTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                setData(supportedFileType.get(tab.getPosition()));
+                ((FilePickerActivity)getActivity()).setActiveTab(tab.getPosition());
+                Sort.Type sortType = ((FilePickerActivity)getActivity()).getSortType();
+                Sort.Order sortOrder = ((FilePickerActivity)getActivity()).getSortOrder();
+                String query = ((FilePickerActivity)getActivity()).getSearchQuery();
+                mFragmentInteractionListener.getFileContract().setData(supportedFileType.get(tab.getPosition()),
+                        sortType,sortOrder,query,tab.getPosition());
             }
 
             @Override

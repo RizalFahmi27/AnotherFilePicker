@@ -1,0 +1,7 @@
+Index: multifilepicker/src/main/java/com/rzilyn/github/multifilepicker/adapters/FileDataManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- multifilepicker/src/main/java/com/rzilyn/github/multifilepicker/adapters/FileDataManager.java	(revision )
++++ multifilepicker/src/main/java/com/rzilyn/github/multifilepicker/adapters/FileDataManager.java	(revision )

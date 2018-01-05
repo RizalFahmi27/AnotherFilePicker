@@ -1,11 +1,17 @@
 package com.rzilyn.github.multifilepicker.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,29 +24,30 @@ import com.rzilyn.github.multifilepicker.utils.Util;
 
 import net.igenius.customcheckbox.CustomCheckBox;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
  * Created by Rizal Fahmi on 19-Dec-17.
  */
 
-public class SimpleFileAdapter extends BaseFileAdapter{
+public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
 
     private GeneralFile mCurrentItem;
     private BaseAdapterListener<GeneralFile> mAdapterListener;
     private boolean enableCheckBox;
     private String projection;
+    private int adapterPos;
 
-    public SimpleFileAdapter(List<GeneralFile> fileList, Context context, @NonNull BaseAdapterListener adapterListener,
-                             int[] colorScheme, boolean enableCheckBox){
+    private boolean isClikedFileSelected;
+
+    public SimpleFileAdapter(List<GeneralFile> fileList, Context context, @NonNull BaseAdapterListener<GeneralFile> baseAdapterListener,
+                             int[] colorScheme, int adapterPos, @Nullable String projection, boolean enableCheckBox){
         super(fileList,context,colorScheme);
         this.fileList = fileList;
         this.enableCheckBox = enableCheckBox;
-        if(!(mContext instanceof View.OnCreateContextMenuListener))
-            throw new IllegalStateException("Context must implement OnCreateContextMenuListener");
-        this.mAdapterListener = adapterListener;
+        this.mAdapterListener = baseAdapterListener;
+        this.projection = projection;
+        this.adapterPos = adapterPos;
     }
 
     public GeneralFile getCurrentItem() {
@@ -55,39 +62,23 @@ public class SimpleFileAdapter extends BaseFileAdapter{
         this.projection = projection;
     }
 
-//    @Override
-//    protected void addData(GeneralFile file) {
-//        if(projection != null && !projection.equals(file.getFileType())){
-//            // Do something
-//        }
-//        else super.addData(file);
-//    }
+    public String getProjection() {
+        return projection;
+    }
 
-//    public void notifyTabSelected(){
-//        actualPosition.clear();
-//        for(int i=0,j=0;i<fileList.size();i++){
-//            GeneralFile file = fileList.get(i);
-//            if(projection != null && projection.equals(file.getFileType())){
-//                actualPosition.put(j,i);
-//                j++;
-//                Log.d("Adapter","Item loop : "+projection);
-//            }
-//        }
-//        notifyDataSetChanged();
-//    }
-
-//    private int getActualPosition(int position){
-//        return actualPosition.get(position);
-//    }
+    public void noticeEmptyData(){
+        this.fileList.clear();
+        this.fileList.add(new GeneralFile());
+    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == 0) {
-            View viewBrowser = LayoutInflater.from(mContext).inflate(R.layout.layout_open_explorer,null,false);
-            return new ViewHolderBrowser(viewBrowser);
+            View viewEmpty = LayoutInflater.from(mContext).inflate(R.layout.layout_file_not_found,parent,false);
+            return new ViewHolderEmpty(viewEmpty);
         }
         else if(viewType == 1){
-            View view = LayoutInflater.from(mContext).inflate(R.layout.layout_simple_item_file,parent,false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.layout_simple_item_file,null,false);
             return new ViewHolder(view);
         }
         else return null;
@@ -124,7 +115,8 @@ public class SimpleFileAdapter extends BaseFileAdapter{
             viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    setCurrentItem(file);
+                    mAdapterListener.onItemLongClicked(file,position,adapterPos);
+                    isClikedFileSelected = mAdapterListener.isFileSelected(file);
                     return false;
                 }
             });
@@ -162,13 +154,14 @@ public class SimpleFileAdapter extends BaseFileAdapter{
 
     @Override
     public int getItemViewType(int position) {
-        if(fileList.get(position).getFileType().equals(Util.FILE_DUMMY)){
+        if(fileList.get(position).getId() == null ||
+                fileList.get(position).getFileType().equals(Util.FILE_DUMMY)){
             return 0;
         }
         else return 1;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
 
         TextView textFileName;
         TextView textFileSize;
@@ -186,13 +179,22 @@ public class SimpleFileAdapter extends BaseFileAdapter{
             this.imageFileIcon = itemView.findViewById(R.id.image_fileIcon);
             this.checkBox = itemView.findViewById(R.id.checkbox_selectedFile);
             this.checkBox.setEnabled(false);
-            itemView.setOnCreateContextMenuListener((View.OnCreateContextMenuListener) mContext);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            Log.d("Adapter","OnCreateContext");
+            MenuInflater menuInflater = ((Activity)mContext).getMenuInflater();
+            menuInflater.inflate(R.menu.menu_file,menu);
+            if(isClikedFileSelected)
+                menu.getItem(0).setVisible(false);
+            else menu.getItem(1).setVisible(false);
+        }
     }
 
-    static class ViewHolderBrowser extends RecyclerView.ViewHolder{
-        public ViewHolderBrowser(View itemView) {
+    static class ViewHolderEmpty extends RecyclerView.ViewHolder{
+        public ViewHolderEmpty(View itemView) {
             super(itemView);
         }
     }

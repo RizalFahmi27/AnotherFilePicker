@@ -42,9 +42,9 @@ public class FilePickerSimpleFragment extends Fragment{
         return new FilePickerSimpleFragment();
     }
 
-    public static FilePickerSimpleFragment newInstance(String projection){
+    public static FilePickerSimpleFragment newInstance(int position){
         Bundle args = new Bundle();
-        args.putString(Constant.EXTRA_PROJECTION,projection);
+        args.putInt(Constant.EXTRA_ADAPTER_POSITION,position);
         FilePickerSimpleFragment fragment = new FilePickerSimpleFragment();
         fragment.setArguments(args);
         return fragment;
@@ -77,10 +77,11 @@ public class FilePickerSimpleFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_file_picker_simple, container, false);
         mRecyclerView = view.findViewById(R.id.recyclerview_file);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        SimpleFileAdapter adapter = (SimpleFileAdapter) mFragmentInteractionListener.getFileContract().getAdapter();
+        int adapterPos = 0;
         if(getArguments()!=null) {
-            adapter.setProjection(getArguments().getString(Constant.EXTRA_PROJECTION));
+            adapterPos = (getArguments().getInt(Constant.EXTRA_ADAPTER_POSITION));
         }
+        SimpleFileAdapter adapter = (SimpleFileAdapter) mFragmentInteractionListener.getFileContract().getAdapter(adapterPos);
         mRecyclerView.setAdapter(adapter);
         registerForContextMenu(mRecyclerView);
         return view;

@@ -18,10 +18,9 @@ import java.util.function.Predicate;
  * Created by Rizal Fahmi on 19-Dec-17.
  */
 
-public class FileDataManager <T> implements FileContract<T> {
+public class FileDataManager <T extends BaseFile> implements FileContract<T> {
 
     private List<T> originalFileList;
-    private List<T> tempFileList;
 
     private Map<String, T> selectedFile = new LinkedHashMap<>();
 
@@ -31,30 +30,53 @@ public class FileDataManager <T> implements FileContract<T> {
     public FileDataManager(){
         this.adapter = new ArrayList<>();
         this.originalFileList = new ArrayList<>();
-        this.tempFileList = new ArrayList<>();
     }
 
     public void addAdapter(BaseFileAdapter adapter) {
         this.adapter.add(adapter);
     }
 
-    public void replaceData(List<T> fileList, int position) {
+    public void replaceData(List<T> fileList) {
         this.originalFileList = fileList;
-        this.tempFileList = fileList;
-        replaceAdapterData(fileList,position);
+        for(int i=0;i<adapter.size();i++)
+            replaceAdapterData(fileList,i);
     }
 
     private void replaceAdapterData(List<T> fileList, int position){
-        if(adapter.get(position) instanceof SimpleFileAdapter)
-            adapter.get(position).replaceData((List<GeneralFile>) fileList);
-        Log.d("SearchQuery","Text : "+fileList.size());
+        if(adapter.get(position) instanceof SimpleFileAdapter) {
+            SimpleFileAdapter simpleAdapter = (SimpleFileAdapter) adapter.get(position);
+            String projection = simpleAdapter.getProjection();
+            List<T> newData = new ArrayList<>();
+            if(projection != null && !projection.equals("")){
+                for(T t : fileList){
+                    GeneralFile file = (GeneralFile) t;
+                    if(file.getFileType()!=null &&
+                            file.getFileType().equals(projection))
+                        newData.add(t);
+                }
+            }
+            else newData.addAll(fileList);
+            simpleAdapter.replaceData((List<GeneralFile>) newData);
+
+            if(newData.size() < 1)
+                simpleAdapter.noticeEmptyData();
+        }
         notifyDataChange(position);
     }
 
-    private void addAdapterData(T file, int position){
-        if(adapter.get(position) instanceof SimpleFileAdapter)
-            adapter.get(position).addData((GeneralFile) file);
+    private void addAdapterData(T t, int position){
+        adapter.get(position).addData(t);
         notifyDataInsert(position);
+    }
+
+    private void addAdapterData(T t){
+        for(int i=0;i<adapter.size();i++){
+            if(t instanceof GeneralFile){
+                GeneralFile file = (GeneralFile) t;
+                if(file.getFileType().equals(((SimpleFileAdapter)adapter.get(i)).getProjection()))
+                    adapter.get(i).addData(t);
+            }
+        }
     }
 
     public void notifyDataInsert(int position){
@@ -65,33 +87,35 @@ public class FileDataManager <T> implements FileContract<T> {
         adapter.get(position).notifyDataSetChanged();
     }
 
-    public void notifyItemRangeChanged(){
-
-    }
 
     @Override
     public BaseFileAdapter getAdapter(int position){
         return adapter.get(position);
     }
 
+    @Override
+    public void setData(String projection, Sort.Type sortType, Sort.Order sortOrder, String searchQuery, int position) {
+        filterFile(projection,searchQuery,true,position);
+        sortFile(sortType,sortOrder,true,position);
+    }
+
 
     public void recoverOriginalData(int position){
-        tempFileList.clear();
-        tempFileList.addAll(originalFileList);
-        replaceAdapterData(tempFileList,position);
+        replaceAdapterData(originalFileList,position);
     }
 
     public void sortFile(Sort.Type type, Sort.Order order, boolean replaceData, int position){
-        if(adapter instanceof SimpleFileAdapter) {
-            Collections.sort((List<GeneralFile>) tempFileList, new BaseFile.FileComparator(type,order));
-            Collections.sort((List<GeneralFile>) originalFileList, new BaseFile.FileComparator(type,order));
+        if(adapter.get(position) instanceof SimpleFileAdapter) {
+            List fileList = adapter.get(position).getFileList();
+            Collections.sort((List<GeneralFile>) fileList, new BaseFile.FileComparator(type,order));
+            Collections.sort(originalFileList, new BaseFile.FileComparator(type,order));
             if(replaceData)
-               replaceAdapterData(tempFileList, position);
+               replaceAdapterData(fileList, position);
         }
     }
 
     public void filterFile(final String phrase, boolean replaceData, int position){
-        if(adapter instanceof SimpleFileAdapter) {
+        if(adapter.get(position) instanceof SimpleFileAdapter) {
             List<T> result;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 result = Util.filter(originalFileList, new Predicate<T>() {
@@ -110,8 +134,38 @@ public class FileDataManager <T> implements FileContract<T> {
                     }
                 });
             if(replaceData)
-                replaceTempData(result,position);
+                replaceAdapterData(result,position);
         }
+    }
+
+    public void filterFile(final String projection, final String phrase, boolean replaceData, int position){
+        if(adapter.get(position) instanceof SimpleFileAdapter) {
+            List<T> result;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                result = Util.filter(originalFileList, new Predicate<T>() {
+                    @Override
+                    public boolean test(T t) {
+                        GeneralFile file = (GeneralFile) t;
+                        return phrase.equals("") || ( file.getFilename().toLowerCase().contains(phrase.toLowerCase())
+                        && file.getFileType().equals(projection));
+                    }
+                });
+            } else
+                result = Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
+                    @Override
+                    public boolean apply(T t) {
+                        GeneralFile file = (GeneralFile) t;
+                        return phrase.equals("") || ( file.getFilename().toLowerCase().contains(phrase.toLowerCase())
+                                && file.getFileType().equals(projection));
+                    }
+                });
+            if(replaceData)
+                replaceAdapterData(result,position);
+        }
+    }
+
+    public void notifyItemChanged(int itemPosition, int adapterPosition){
+        adapter.get(adapterPosition).notifyItemChanged(itemPosition);
     }
 
     public boolean hasFinishedLoading(){
@@ -122,15 +176,10 @@ public class FileDataManager <T> implements FileContract<T> {
         this.hasFinishedloading = flag;
     }
 
-    public void replaceTempData(List<T> fileList, int position) {
-        tempFileList = fileList;
-        replaceAdapterData(fileList,position);
-    }
 
-    public void addData(T file, int position) {
+    public void addData(T file) {
         originalFileList.add(file);
-        tempFileList.add(file);
-        addAdapterData(file,position);
+        addAdapterData(file);
     }
 
 
@@ -150,11 +199,5 @@ public class FileDataManager <T> implements FileContract<T> {
     public boolean isFileSelected(String key){
         return selectedFile.containsKey(key);
     }
-
-    @Override
-    public List<T> getData() {
-        return tempFileList;
-    }
-
 
 }
