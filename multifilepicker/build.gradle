@@ -62,3 +62,26 @@ artifacts {
     archives generateJavaDocsJar
     archives generateSourcesJar
 }
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    pkg {
+        repo = 'maven'
+        name = 'com.github.rzilyn.multifilepicker'
+
+        version {
+            name = '1.0-tuts'
+            released  = new Date()
+            vcsTag = '1.0'
+        }
+
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/RizalFahmi27/AnotherFilePicker.git'
+        websiteUrl = 'https://github.com/RizalFahmi27/AnotherFilePicker'
+    }
+    configurations = ['archives']
+}
