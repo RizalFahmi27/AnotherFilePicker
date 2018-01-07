@@ -48,19 +48,61 @@ task generateSourcesJar(type: Jar) {
 }
 
 task generateJavadocs(type: Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath()
             .join(File.pathSeparator))
 }
 
-task generateJavaDocsJar(type: Jar, dependsOn: generateJavadocs) {
+task generateJavaDocsJar(type: Jar) {
     from generateJavadocs.destinationDir
     classifier 'javadoc'
+    generateJavaDocsJar.dependsOn generateJavadocs
 }
 
 artifacts {
     archives generateJavaDocsJar
     archives generateSourcesJar
+}
+
+def git = 'https://github.com/RizalFahmi27/AnotherFilePicker.git'
+def website = 'https://github.com/RizalFahmi27/AnotherFilePicker'
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name 'com.github.rzilyn.multifilepicker'
+                description = 'File picker'
+                url website
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'rzilyn'
+                        name 'Mohammad Rizal Fahmi Dwi Putra'
+                        email 'rizalfahmi27@gmail.com'
+                    }
+                }
+                scm {
+                    connection git
+                    developerConnection git
+                    url website
+                }
+            }
+        }
+    }
 }
 
 Properties properties = new Properties()
@@ -72,7 +114,7 @@ bintray {
     pkg {
         repo = 'maven'
         name = 'com.github.rzilyn.multifilepicker'
-
+        userOrg = 'rzilyn'
         version {
             name = '1.0-tuts'
             released  = new Date()
@@ -80,8 +122,8 @@ bintray {
         }
 
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/RizalFahmi27/AnotherFilePicker.git'
-        websiteUrl = 'https://github.com/RizalFahmi27/AnotherFilePicker'
+        vcsUrl = git
+        websiteUrl = website
     }
     configurations = ['archives']
 }

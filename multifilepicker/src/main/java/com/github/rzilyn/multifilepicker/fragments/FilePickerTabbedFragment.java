@@ -13,12 +13,12 @@ import android.view.ViewGroup;
 
 import com.github.rzilyn.multifilepicker.FilePickerActivity;
 import com.github.rzilyn.multifilepicker.FilePickerOptions;
+import com.github.rzilyn.multifilepicker.R;
 import com.github.rzilyn.multifilepicker.adapters.FileContract;
 import com.github.rzilyn.multifilepicker.adapters.FragmentSectionAdapter;
 import com.github.rzilyn.multifilepicker.listeners.FragmentInteractionListener;
 import com.github.rzilyn.multifilepicker.model.GeneralFile;
 import com.github.rzilyn.multifilepicker.utils.Sort;
-import com.rzilyn.github.multifilepicker.R;
 import java.util.List;
 
 /**

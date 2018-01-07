@@ -15,7 +15,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.rzilyn.github.multifilepicker.R;
+
+import com.github.rzilyn.multifilepicker.R;
 
 import java.io.File;
 import java.math.RoundingMode;

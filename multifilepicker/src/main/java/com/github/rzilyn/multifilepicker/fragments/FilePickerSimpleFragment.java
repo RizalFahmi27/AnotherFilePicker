@@ -13,10 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.rzilyn.multifilepicker.R;
 import com.github.rzilyn.multifilepicker.adapters.SimpleFileAdapter;
 import com.github.rzilyn.multifilepicker.listeners.FragmentInteractionListener;
 import com.github.rzilyn.multifilepicker.utils.Constant;
-import com.rzilyn.github.multifilepicker.R;
 
 
 /**

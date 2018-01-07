@@ -39,7 +39,7 @@
                     android:singleLine="true"
                     android:maxLines="1"
                     android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/colorBlack"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radio_sortName"
@@ -74,7 +74,7 @@
                     android:singleLine="true"
                     android:maxLines="1"
                     android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/colorBlack"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radio_sortDate"
@@ -109,7 +109,7 @@
                     android:singleLine="true"
                     android:maxLines="1"
                     android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/colorBlack"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radio_sortType"
@@ -144,7 +144,7 @@
                     android:singleLine="true"
                     android:maxLines="1"
                     android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/colorBlack"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radio_sortSize"
