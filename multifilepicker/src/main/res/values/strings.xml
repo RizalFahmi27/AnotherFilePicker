@@ -18,5 +18,15 @@
     <string name="text_select">Select</string>
     <string name="text_unselect">Unselect</string>
 
+    <string name="text_camera">Camera</string>
+    <string name="text_all_photos">All photos</string>
+
+    <string name="text_permission_request_camera">This application requires camera permission. Please allow to continue</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="camera_error">Currently not supported</string>
+
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

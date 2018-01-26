@@ -1,7 +1,7 @@
 package com.github.rzilyn.multifilepicker.loader;
 
 
-import com.github.rzilyn.multifilepicker.model.GeneralFile;
+import com.github.rzilyn.multifilepicker.model.BaseFile;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * Created by Rizal Fahmi on 16-Dec-17.
  */
 
-public interface ScanResultCallback {
-    void onFileScanFinished(List<GeneralFile> fileList);
-    void onFileScanUpdate(GeneralFile file);
+public interface ScanResultCallback<T extends BaseFile> {
+    void onFileScanFinished(List<T> fileList);
+    void onFileScanUpdate(T file);
 }

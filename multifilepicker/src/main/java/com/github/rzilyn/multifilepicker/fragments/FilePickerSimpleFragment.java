@@ -3,19 +3,17 @@ package com.github.rzilyn.multifilepicker.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.rzilyn.multifilepicker.R;
 import com.github.rzilyn.multifilepicker.adapters.SimpleFileAdapter;
-import com.github.rzilyn.multifilepicker.listeners.FragmentInteractionListener;
+import com.github.rzilyn.multifilepicker.interfaces.FragmentInteractionListener;
 import com.github.rzilyn.multifilepicker.utils.Constant;
 
 
@@ -57,15 +55,17 @@ public class FilePickerSimpleFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
         if(getParentFragment() instanceof FragmentInteractionListener){
-            mFragmentInteractionListener = (FragmentInteractionListener) getParentFragment();
+            this.mFragmentInteractionListener = (FragmentInteractionListener) getParentFragment();
         }
         else throw new IllegalStateException("Fragment must implement FragmentInteractionListener");
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDetach() {
+        super.onDetach();
+        this.mFragmentInteractionListener = null;
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

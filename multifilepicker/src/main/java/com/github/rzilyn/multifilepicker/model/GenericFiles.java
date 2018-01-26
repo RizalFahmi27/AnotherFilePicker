@@ -1,22 +1,21 @@
 package com.github.rzilyn.multifilepicker.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * Created by Rizal Fahmi on 15-Dec-17.
  */
 
-public class GeneralFile extends BaseFile implements Parcelable{
+public class GenericFiles extends RawFile {
     private String mimeType;
 
-    public GeneralFile(String id, String filename, String fileType, String dateModified, String filepath, long fileSize, String mimeType) {
+    public GenericFiles(String id, String filename, String fileType, String dateModified, String filepath, long fileSize, String mimeType) {
         super(id, filename, fileType, dateModified, filepath, fileSize);
         this.mimeType = mimeType;
     }
 
     // Dummy instance
-    public GeneralFile(){
+    public GenericFiles(){
         super(null,null,null,null,null,0);
     }
 
@@ -39,20 +38,20 @@ public class GeneralFile extends BaseFile implements Parcelable{
         dest.writeString(this.mimeType);
     }
 
-    protected GeneralFile(Parcel in) {
+    protected GenericFiles(Parcel in) {
         super(in);
         this.mimeType = in.readString();
     }
 
-    public static final Creator<GeneralFile> CREATOR = new Creator<GeneralFile>() {
+    public static final Creator<GenericFiles> CREATOR = new Creator<GenericFiles>() {
         @Override
-        public GeneralFile createFromParcel(Parcel source) {
-            return new GeneralFile(source);
+        public GenericFiles createFromParcel(Parcel source) {
+            return new GenericFiles(source);
         }
 
         @Override
-        public GeneralFile[] newArray(int size) {
-            return new GeneralFile[size];
+        public GenericFiles[] newArray(int size) {
+            return new GenericFiles[size];
         }
     };
 
@@ -63,6 +62,6 @@ public class GeneralFile extends BaseFile implements Parcelable{
 
     @Override
     public boolean equals(Object obj) {
-        return ((GeneralFile) obj).getId().equals(this.getId());
+        return ((GenericFiles) obj).getId().equals(this.getId());
     }
 }

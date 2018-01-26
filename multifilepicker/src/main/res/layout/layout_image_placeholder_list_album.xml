@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:padding="8dp">
+
+  <ImageView
+    android:id="@+id/image_photo"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:src="@drawable/image_placeholder_300x300"/>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_toRightOf="@id/image_photo"
+    android:layout_marginLeft="15dp"
+    android:layout_centerVertical="true">
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="0.5dp"
+      android:layout_alignParentBottom="true"
+      android:background="@color/colorSmoothGreyTransparent"/>
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_centerVertical="true"
+      android:layout_alignParentLeft="true"
+      android:layout_toLeftOf="@+id/container_imageCount">
+      <TextView
+        android:id="@+id/text_bucketName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textColor="@color/colorBlack"
+        android:text="Camera"/>
+      <TextView
+        android:id="@+id/text_bucketDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12/12/1997"
+        android:textColor="@color/colorBlack"
+        android:layout_marginTop="5dp"
+        android:textSize="14sp"/>
+    </LinearLayout>
+    <LinearLayout
+      android:id="@+id/container_imageCount"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_alignParentRight="true"
+      android:layout_centerVertical="true">
+
+      <TextView
+        android:id="@+id/text_bucketPhotoCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="59323"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/colorBlack"/>
+
+      <ImageView
+        android:id="@+id/image_folderIndicator"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="3dp"
+        android:src="@drawable/ic_keyboard_arrow_left_black"
+        android:scaleX="-1"/>
+
+    </LinearLayout>
+
+  </RelativeLayout>
+
+</RelativeLayout>

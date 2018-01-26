@@ -10,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.rzilyn.multifilepicker.adapters.FileDataManager;
-import com.github.rzilyn.multifilepicker.listeners.ActivityInteractionListener;
-import com.github.rzilyn.multifilepicker.model.GeneralFile;
+import com.github.rzilyn.multifilepicker.interfaces.ActivityInteractionListener;
+import com.github.rzilyn.multifilepicker.model.BaseFile;
 import com.github.rzilyn.multifilepicker.utils.Constant;
 
 
@@ -20,7 +20,7 @@ import com.github.rzilyn.multifilepicker.utils.Constant;
  */
 
 public abstract class BaseFragment extends Fragment {
-    protected FileDataManager<GeneralFile> mFileDataManager;
+    protected FileDataManager<BaseFile> mFileDataManager;
     protected FilePickerOptions options;
     protected int[] colorScheme;
     protected ActivityInteractionListener.FragmentToActivity mFragmentListener;
@@ -45,6 +45,12 @@ public abstract class BaseFragment extends Fragment {
         else throw new IllegalStateException("Activity must implement ActivityInteractionListener");
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.mFragmentListener = null;
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState, @LayoutRes int layoutId) {
         View view = LayoutInflater.from(getActivity()).inflate(layoutId,container,false);
         initView(view);
@@ -53,5 +59,6 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public abstract void initView(View view);
+
     public abstract void setupColors();
 }

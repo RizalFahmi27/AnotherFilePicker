@@ -8,6 +8,7 @@
 
     <color name="colorWhite">#ffffff</color>
     <color name="colorGrey">#5e5e5e</color>
+    <color name="colorSmootBlackTransparent">#d85e5e5e</color>
     <color name="colorSmoothGreyTransparent">#94969696</color>
     <color name="colorSmoothGrey">#969696</color>
     <color name="colorRed">#ed0f0f</color>
@@ -23,4 +24,6 @@
         <item>@color/colorBlue</item>
         <item>@color/colorRed</item>
     </array>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

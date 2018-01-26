@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.github.rzilyn.multifilepicker.view_component.SquareRelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      >
+
+    <TextureView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <ImageView
+        android:id="@+id/image_photo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:tint="@color/colorSmoothGrey"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_camera_alt_black"/>
+
+  </RelativeLayout>
+
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorSmootBlackTransparent"
+    android:layout_alignParentBottom="true"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_camera"
+        android:textColor="@color/colorWhite"
+        android:textSize="13sp"
+        android:layout_centerVertical="true"
+        />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+      <TextView
+        android:id="@+id/text_bucketName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="13sp"/>
+      <TextView
+        android:id="@+id/text_bucketDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginTop="5dp"
+        android:textSize="13sp"
+        android:textColor="@color/colorWhite"/>
+    </LinearLayout>
+  </RelativeLayout>
+
+
+</com.github.rzilyn.multifilepicker.view_component.SquareRelativeLayout>

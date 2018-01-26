@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,8 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.rzilyn.multifilepicker.R;
-import com.github.rzilyn.multifilepicker.listeners.BaseAdapterListener;
-import com.github.rzilyn.multifilepicker.model.GeneralFile;
+import com.github.rzilyn.multifilepicker.interfaces.BaseAdapterListener;
+import com.github.rzilyn.multifilepicker.model.GenericFiles;
+import com.github.rzilyn.multifilepicker.model.RawFile;
 import com.github.rzilyn.multifilepicker.utils.Util;
 
 import net.igenius.customcheckbox.CustomCheckBox;
@@ -30,17 +29,17 @@ import java.util.List;
  * Created by Rizal Fahmi on 19-Dec-17.
  */
 
-public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
+public class SimpleFileAdapter extends BaseFileAdapter<GenericFiles>{
 
-    private GeneralFile mCurrentItem;
-    private BaseAdapterListener<GeneralFile> mAdapterListener;
+    private GenericFiles mCurrentItem;
+    private BaseAdapterListener<RawFile> mAdapterListener;
     private boolean enableCheckBox;
     private String projection;
     private int adapterPos;
 
-    private boolean isClikedFileSelected;
+    private boolean isClickedFileSelected;
 
-    public SimpleFileAdapter(List<GeneralFile> fileList, Context context, @NonNull BaseAdapterListener<GeneralFile> baseAdapterListener,
+    public SimpleFileAdapter(List<GenericFiles> fileList, Context context, @NonNull BaseAdapterListener<RawFile> baseAdapterListener,
                              int[] colorScheme, int adapterPos, @Nullable String projection, boolean enableCheckBox){
         super(fileList,context,colorScheme);
         this.fileList = fileList;
@@ -50,11 +49,15 @@ public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
         this.adapterPos = adapterPos;
     }
 
-    public GeneralFile getCurrentItem() {
+    public void setAdapterListener(BaseAdapterListener<RawFile> mAdapterListener) {
+        this.mAdapterListener = mAdapterListener;
+    }
+
+    public GenericFiles getCurrentItem() {
         return mCurrentItem;
     }
 
-    public void setCurrentItem(GeneralFile file) {
+    public void setCurrentItem(GenericFiles file) {
         this.mCurrentItem = file;
     }
 
@@ -68,7 +71,7 @@ public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
 
     public void noticeEmptyData(){
         this.fileList.clear();
-        this.fileList.add(new GeneralFile());
+        this.fileList.add(new GenericFiles());
     }
 
     @Override
@@ -86,8 +89,7 @@ public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        final GeneralFile file = fileList.get(position);
-        Log.d("Adapter","Unselected currentFileId : "+file.getId());
+        final GenericFiles file = fileList.get(position);
         if(holder instanceof ViewHolder){
             final ViewHolder viewHolder = (ViewHolder) holder;
 
@@ -116,7 +118,7 @@ public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
                 @Override
                 public boolean onLongClick(View view) {
                     mAdapterListener.onItemLongClicked(file,position,adapterPos);
-                    isClikedFileSelected = mAdapterListener.isFileSelected(file);
+                    isClickedFileSelected = mAdapterListener.isFileSelected(file);
                     return false;
                 }
             });
@@ -187,7 +189,7 @@ public class SimpleFileAdapter extends BaseFileAdapter<GeneralFile>{
             Log.d("Adapter","OnCreateContext");
             MenuInflater menuInflater = ((Activity)mContext).getMenuInflater();
             menuInflater.inflate(R.menu.menu_file,menu);
-            if(isClikedFileSelected)
+            if(isClickedFileSelected)
                 menu.getItem(0).setVisible(false);
             else menu.getItem(1).setVisible(false);
         }

@@ -11,12 +11,19 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <Button
-            android:id="@+id/button_openPick"
+            android:id="@+id/button_openPickFile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open Picker Activity"
+            android:text="Open File Picker Activity"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
+        <Button
+          android:id="@+id/button_openPickPhoto"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="Open Photo Picker Activity"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"/>
         <ListView
             android:id="@+id/listview_results"
             android:layout_width="match_parent"

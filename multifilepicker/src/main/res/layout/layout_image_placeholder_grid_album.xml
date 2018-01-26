@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.github.rzilyn.multifilepicker.view_component.SquareRelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+
+  <ImageView
+    android:id="@+id/image_photo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:src="@drawable/image_placeholder_300x300"/>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorSmootBlackTransparent"
+    android:layout_alignParentBottom="true"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_toLeftOf="@+id/text_bucketPhotoCount">
+      <TextView
+        android:id="@+id/text_bucketName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bucket Test"
+        android:textColor="@color/colorWhite"
+        android:textSize="13sp"/>
+      <TextView
+        android:id="@+id/text_bucketDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10/07/2017"
+        android:layout_marginTop="5dp"
+        android:textSize="13sp"
+        android:textColor="@color/colorWhite"/>
+    </LinearLayout>
+    <TextView
+      android:id="@+id/text_bucketPhotoCount"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:text="500"
+      android:layout_centerVertical="true"
+      android:ellipsize="marquee"
+      android:textColor="@color/colorWhite"
+      android:textSize="11sp"/>
+  </RelativeLayout>
+
+
+</com.github.rzilyn.multifilepicker.view_component.SquareRelativeLayout>

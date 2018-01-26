@@ -1,4 +1,4 @@
-package com.github.rzilyn.multifilepicker.listeners;
+package com.github.rzilyn.multifilepicker.interfaces;
 
 /**
  * Created by Rizal Fahmi on 21-Dec-17.

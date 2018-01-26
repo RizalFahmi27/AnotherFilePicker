@@ -2,11 +2,10 @@ package com.github.rzilyn.multifilepicker.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ViewGroup;
 
-
 import com.github.rzilyn.multifilepicker.model.BaseFile;
+import com.github.rzilyn.multifilepicker.model.RawFile;
 
 import java.util.List;
 

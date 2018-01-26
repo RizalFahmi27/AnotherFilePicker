@@ -10,13 +10,17 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.TextureView;
 import android.webkit.MimeTypeMap;
 
 
 import com.github.rzilyn.multifilepicker.R;
+import com.github.rzilyn.multifilepicker.interfaces.CameraSupport;
+import com.github.rzilyn.multifilepicker.view_component.AutoFitTextureView;
 
 import java.io.File;
 import java.math.RoundingMode;
@@ -144,7 +148,7 @@ public class Util {
         }
     }
 
-    public static Map<String,File> getStorageDirectories(Context context) {
+    public static Map<String,File> getStorageDirectories() {
             Map<String, File> storageLocations = new HashMap<>(10);
             File sdCard = Environment.getExternalStorageDirectory();
             storageLocations.put(SD_CARD, sdCard);
@@ -159,12 +163,14 @@ public class Util {
             return storageLocations;
     }
 
-    public static final String getFileExtension(String filename){
+    public static String getFileExtension(String filename){
         String[] ext = filename.split("\\.");
-        return ext[ext.length - 1];
+        if(ext.length > 0)
+            return ext[ext.length - 1];
+        else return "";
     }
 
-    public static final String getFileSizeString(double originalSize){
+    public static String getFileSizeString(double originalSize){
         return fileSize(0,originalSize);
     }
 
@@ -218,5 +224,29 @@ public class Util {
         }
         return new ArrayList<>(result);
     }
+
+    public static String getFilename(String path){
+        String name[] =  path.split("/");
+        return name[name.length - 1];
+    }
+
+    public static boolean isExtensionOf(String filename, String extension){
+        //String ext = "";
+        //int i = filename.lastIndexOf(".");
+        //if(i > 0)
+        //    ext = filename.substring(i+1);
+        return getFileExtension(filename).equalsIgnoreCase(extension);
+    }
+
+    public static CameraSupport getCamera(Context context, AutoFitTextureView textureView, boolean isPreviewOnly){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            return new CameraNew(context,textureView,isPreviewOnly);
+        }
+        else {
+            return new CameraOld(context,textureView);
+        }
+    }
+
+
 
 }

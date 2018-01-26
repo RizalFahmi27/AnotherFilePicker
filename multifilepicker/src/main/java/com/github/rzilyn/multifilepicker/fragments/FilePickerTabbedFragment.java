@@ -16,8 +16,8 @@ import com.github.rzilyn.multifilepicker.FilePickerOptions;
 import com.github.rzilyn.multifilepicker.R;
 import com.github.rzilyn.multifilepicker.adapters.FileContract;
 import com.github.rzilyn.multifilepicker.adapters.FragmentSectionAdapter;
-import com.github.rzilyn.multifilepicker.listeners.FragmentInteractionListener;
-import com.github.rzilyn.multifilepicker.model.GeneralFile;
+import com.github.rzilyn.multifilepicker.interfaces.FragmentInteractionListener;
+import com.github.rzilyn.multifilepicker.model.BaseFile;
 import com.github.rzilyn.multifilepicker.utils.Sort;
 import java.util.List;
 
@@ -44,9 +44,15 @@ public class FilePickerTabbedFragment extends Fragment implements FragmentIntera
     public void onAttach(Context context) {
         super.onAttach(context);
         if(getParentFragment() instanceof FragmentInteractionListener){
-            mFragmentInteractionListener = (FragmentInteractionListener) getParentFragment();
+            this.mFragmentInteractionListener = (FragmentInteractionListener) getParentFragment();
         }
         else throw new IllegalStateException("Fragment must implement FragmentInteractionListener");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.mFragmentInteractionListener = null;
     }
 
     @Override
@@ -125,7 +131,7 @@ public class FilePickerTabbedFragment extends Fragment implements FragmentIntera
     }
 
     @Override
-    public FileContract<GeneralFile> getFileContract() {
+    public FileContract<BaseFile> getFileContract() {
         return mFragmentInteractionListener.getFileContract();
     }
 

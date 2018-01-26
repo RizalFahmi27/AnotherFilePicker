@@ -2,9 +2,10 @@ package com.github.rzilyn.multifilepicker.adapters;
 
 import android.util.Log;
 
-
+import com.github.rzilyn.multifilepicker.model.Album;
 import com.github.rzilyn.multifilepicker.model.BaseFile;
-import com.github.rzilyn.multifilepicker.model.GeneralFile;
+import com.github.rzilyn.multifilepicker.model.RawFile;
+import com.github.rzilyn.multifilepicker.model.GenericFiles;
 import com.github.rzilyn.multifilepicker.utils.Sort;
 import com.github.rzilyn.multifilepicker.utils.Util;
 
@@ -50,30 +51,30 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
             List<T> newData = new ArrayList<>();
             if(projection != null && !projection.equals("")){
                 for(T t : fileList){
-                    GeneralFile file = (GeneralFile) t;
+                    GenericFiles file = (GenericFiles) t;
                     if(file.getFileType()!=null &&
                             file.getFileType().equals(projection))
                         newData.add(t);
                 }
             }
             else newData.addAll(fileList);
-            simpleAdapter.replaceData((List<GeneralFile>) newData);
+            simpleAdapter.replaceData((List<GenericFiles>) newData);
 
             if(newData.size() < 1)
                 simpleAdapter.noticeEmptyData();
         }
+        else if(adapter.get(position) instanceof AlbumAdapter){
+          AlbumAdapter albumAdapter = (AlbumAdapter) adapter.get(position);
+          albumAdapter.replaceData((List<Album>) fileList);
+        }
         notifyDataChange(position);
     }
 
-    private void addAdapterData(T t, int position){
-        adapter.get(position).addData(t);
-        notifyDataInsert(position);
-    }
 
     private void addAdapterData(T t){
         for(int i=0;i<adapter.size();i++){
-            if(t instanceof GeneralFile){
-                GeneralFile file = (GeneralFile) t;
+            if(t instanceof GenericFiles){
+                GenericFiles file = (GenericFiles) t;
                 if(file.getFileType().equals(((SimpleFileAdapter)adapter.get(i)).getProjection()))
                     adapter.get(i).addData(t);
             }
@@ -108,7 +109,7 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
     public void sortFile(Sort.Type type, Sort.Order order, boolean replaceData, int position){
         if(adapter.get(position) instanceof SimpleFileAdapter) {
             List fileList = adapter.get(position).getFileList();
-            Collections.sort((List<GeneralFile>) fileList, new BaseFile.FileComparator(type,order));
+            Collections.sort((List<GenericFiles>) fileList, new BaseFile.FileComparator(type,order));
             Collections.sort(originalFileList, new BaseFile.FileComparator(type,order));
             if(replaceData)
                replaceAdapterData(fileList, position);
@@ -122,7 +123,7 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
                 result = Util.filter(originalFileList, new Predicate<T>() {
                     @Override
                     public boolean test(T t) {
-                        GeneralFile file = (GeneralFile) t;
+                        GenericFiles file = (GenericFiles) t;
                         return phrase.equals("") || file.getFilename().toLowerCase().contains(phrase.toLowerCase());
                     }
                 });
@@ -130,7 +131,7 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
                 result = Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
                     @Override
                     public boolean apply(T t) {
-                        GeneralFile file = (GeneralFile) t;
+                        GenericFiles file = (GenericFiles) t;
                         return phrase.equals("") || file.getFilename().toLowerCase().contains(phrase.toLowerCase());
                     }
                 });
@@ -146,7 +147,7 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
                 result = Util.filter(originalFileList, new Predicate<T>() {
                     @Override
                     public boolean test(T t) {
-                        GeneralFile file = (GeneralFile) t;
+                        GenericFiles file = (GenericFiles) t;
                         return phrase.equals("") || ( file.getFilename().toLowerCase().contains(phrase.toLowerCase())
                         && file.getFileType().equals(projection));
                     }
@@ -155,7 +156,7 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
                 result = Util.filter(originalFileList, new com.android.internal.util.Predicate<T>() {
                     @Override
                     public boolean apply(T t) {
-                        GeneralFile file = (GeneralFile) t;
+                        GenericFiles file = (GenericFiles) t;
                         return phrase.equals("") || ( file.getFilename().toLowerCase().contains(phrase.toLowerCase())
                                 && file.getFileType().equals(projection));
                     }
@@ -186,7 +187,6 @@ public class FileDataManager <T extends BaseFile> implements FileContract<T> {
 
     public void addSelectedFile(String key, T file) {
         selectedFile.put(key,file);
-        Log.d("DataManager","Put ? "+selectedFile.containsKey(key));
     }
 
     public void removeSelectedFile(String key) {

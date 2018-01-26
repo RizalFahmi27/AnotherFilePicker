@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <RelativeLayout
+        android:id="@+id/container_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.github.rzilyn.multifilepicker.view_component.AutoFitTextureView
+            android:id="@+id/surfaceView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:transitionName="cameraTransition"/>
+
+        <ImageView
+            android:id="@+id/image_photo"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_camera_alt_black"
+            android:tint="@color/colorSmoothGrey" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@+id/container_camera"
+        android:layout_toRightOf="@+id/container_camera">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorSmoothGreyTransparent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/text_camera"
+            android:textColor="@color/colorBlack"
+            android:textSize="15sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
